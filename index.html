@@ -1,1 +1,316 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>16 週活動拉霸抽獎</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --accent: #f59e0b;
+      --accent-2: #22d3ee;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --ok: #34d399;
+      --lose: #f87171;
+    }
 
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top, #1e293b, var(--bg) 45%);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: min(900px, 100%);
+      background: rgba(17, 24, 39, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 20px 45px rgba(2, 6, 23, 0.45);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2.8vw, 2rem);
+    }
+
+    .sub {
+      margin: 8px 0 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.96rem;
+    }
+
+    .slot {
+      margin: 18px 0;
+      background: linear-gradient(135deg, #1f2937, #0b1220);
+      border-radius: 16px;
+      border: 1px solid rgba(96, 165, 250, 0.2);
+      padding: 18px;
+    }
+
+    .reels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .reel {
+      height: 100px;
+      border-radius: 12px;
+      border: 1px solid rgba(156, 163, 175, 0.35);
+      background: #030712;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: clamp(1rem, 2.6vw, 1.4rem);
+      overflow: hidden;
+      position: relative;
+      text-align: center;
+      padding: 6px;
+    }
+
+    .reel.spin {
+      animation: pulse 0.35s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { box-shadow: inset 0 0 0 rgba(34, 211, 238, 0); }
+      to { box-shadow: inset 0 0 16px rgba(34, 211, 238, 0.35); }
+    }
+
+    .actions {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #fb7185);
+      color: #111827;
+      font-weight: 800;
+      padding: 12px 20px;
+      font-size: 1rem;
+      transition: transform .08s ease;
+    }
+
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .result {
+      margin-top: 14px;
+      min-height: 52px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .result strong { font-size: 1.06rem; }
+
+    .win { color: var(--ok); }
+    .lose { color: var(--lose); }
+
+    .table-wrap {
+      margin-top: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 12px;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      color: #cbd5e1;
+      background: rgba(30, 41, 59, 0.6);
+      position: sticky;
+      top: 0;
+    }
+
+    .note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.55;
+    }
+
+    .history {
+      margin-top: 12px;
+      color: #cbd5e1;
+      font-size: 0.88rem;
+    }
+
+    .history ul {
+      margin: 6px 0 0;
+      padding-left: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>🎰 16 週活動拉霸抽獎</h1>
+    <p class="sub">中獎率設定為 <strong>15%</strong>，未中獎顯示「銘謝惠顧」。本頁依你提供的機率配置模擬抽獎。</p>
+
+    <section class="slot">
+      <div class="reels" id="reels">
+        <div class="reel" id="reel-1">準備中</div>
+        <div class="reel" id="reel-2">準備中</div>
+        <div class="reel" id="reel-3">準備中</div>
+      </div>
+
+      <div class="actions">
+        <button id="spinBtn">開始抽獎</button>
+        <span id="drawCount">目前抽數：0</span>
+      </div>
+
+      <div class="result" id="resultBox">
+        <strong>按下「開始抽獎」進行拉霸！</strong>
+        <span>祝你好運 🍀</span>
+      </div>
+
+      <div class="history">
+        最近 10 抽：
+        <ul id="historyList"></ul>
+      </div>
+    </section>
+
+    <section class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>獎項級距</th>
+            <th>獎項內容</th>
+            <th>機率設定</th>
+          </tr>
+        </thead>
+        <tbody id="probabilityBody"></tbody>
+      </table>
+    </section>
+    <p class="note">※ 大獎機率採 1 / 368,000；其餘採你提供的百分比。由於四捨五入，小數位可能有極小誤差。</p>
+  </main>
+
+  <script>
+    const prizePool = [
+      { tier: 'SSS', label: 'iPhone 16', probability: 1 / 368000, win: true },
+      { tier: 'SS', label: 'PS5', probability: 1 / 368000, win: true },
+      { tier: 'S', label: 'Switch 2', probability: 1 / 368000, win: true },
+      { tier: '稀有度 1', label: '看到爽 (15 min)', probability: 0.001, win: true },
+      { tier: '稀有度 2', label: '看到爽 (10 min)', probability: 0.002, win: true },
+      { tier: '稀有度 3', label: '1,000 鑽', probability: 0.003, win: true },
+      { tier: '稀有度 4', label: '看到爽 (5 min)', probability: 0.004, win: true },
+      { tier: '稀有度 5', label: '500 鑽', probability: 0.005, win: true },
+      { tier: '稀有度 6', label: '100 鑽 (保底)', probability: 0.135, win: true }
+    ];
+
+    const loseProbability = Math.max(0, 1 - prizePool.reduce((s, p) => s + p.probability, 0));
+    prizePool.push({ tier: '-', label: '銘謝惠顧', probability: loseProbability, win: false });
+
+    const reels = [
+      document.getElementById('reel-1'),
+      document.getElementById('reel-2'),
+      document.getElementById('reel-3')
+    ];
+    const spinBtn = document.getElementById('spinBtn');
+    const resultBox = document.getElementById('resultBox');
+    const drawCountEl = document.getElementById('drawCount');
+    const historyList = document.getElementById('historyList');
+
+    let drawCount = 0;
+    const history = [];
+    const reelSymbols = ['🍎', '🎮', '⭐', '💎', '🎁', '🎉', '銘謝惠顧'];
+
+    function randomByWeight(items) {
+      const rand = Math.random();
+      let cumulative = 0;
+      for (const item of items) {
+        cumulative += item.probability;
+        if (rand <= cumulative) return item;
+      }
+      return items[items.length - 1];
+    }
+
+    function renderProbabilityTable() {
+      const tbody = document.getElementById('probabilityBody');
+      tbody.innerHTML = prizePool.map((item) => {
+        const p = (item.probability * 100).toFixed(6).replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1');
+        return `<tr>
+          <td>${item.tier}</td>
+          <td>${item.label}</td>
+          <td>${p}%</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function setResult(prize) {
+      const winClass = prize.win ? 'win' : 'lose';
+      resultBox.innerHTML = `
+        <strong class="${winClass}">${prize.win ? '🎉 恭喜中獎！' : '🙏 銘謝惠顧'}</strong>
+        <span>結果：${prize.label}</span>
+      `;
+
+      history.unshift(`${prize.win ? '中獎' : '未中'}｜${prize.label}`);
+      if (history.length > 10) history.pop();
+      historyList.innerHTML = history.map(item => `<li>${item}</li>`).join('');
+    }
+
+    function startVisualSpin(finalText) {
+      reels.forEach((reel) => reel.classList.add('spin'));
+      const intervals = reels.map((reel, idx) => setInterval(() => {
+        reel.textContent = reelSymbols[(Math.floor(Math.random() * reelSymbols.length) + idx) % reelSymbols.length];
+      }, 90));
+
+      reels.forEach((reel, idx) => {
+        setTimeout(() => {
+          clearInterval(intervals[idx]);
+          reel.classList.remove('spin');
+          reel.textContent = finalText;
+        }, 900 + idx * 500);
+      });
+    }
+
+    spinBtn.addEventListener('click', () => {
+      spinBtn.disabled = true;
+      const prize = randomByWeight(prizePool);
+      startVisualSpin(prize.label);
+
+      setTimeout(() => {
+        drawCount += 1;
+        drawCountEl.textContent = `目前抽數：${drawCount}`;
+        setResult(prize);
+        spinBtn.disabled = false;
+      }, 2100);
+    });
+
+    renderProbabilityTable();
+  </script>
+</body>
+</html>
