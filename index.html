@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>16 週活動拉霸抽獎</title>
+  <title>16 週活動抽獎樂園</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -30,8 +30,8 @@
     }
 
     .container {
-      width: min(900px, 100%);
-      background: rgba(17, 24, 39, 0.88);
+      width: min(980px, 100%);
+      background: rgba(17, 24, 39, 0.9);
       border: 1px solid rgba(148, 163, 184, 0.25);
       border-radius: 20px;
       padding: 24px;
@@ -50,12 +50,48 @@
       font-size: 0.96rem;
     }
 
-    .slot {
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: #0b1220;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      border-color: rgba(34, 211, 238, 0.8);
+      box-shadow: inset 0 0 20px rgba(34, 211, 238, 0.25);
+    }
+
+    .panel {
+      display: none;
       margin: 18px 0;
       background: linear-gradient(135deg, #1f2937, #0b1220);
       border-radius: 16px;
       border: 1px solid rgba(96, 165, 250, 0.2);
       padding: 18px;
+    }
+
+    .panel.active { display: block; }
+
+    .panel-title {
+      margin: 0 0 8px;
+      font-size: 1.08rem;
+    }
+
+    .panel-sub {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.9rem;
     }
 
     .reels {
@@ -73,19 +109,109 @@
       place-items: center;
       font-weight: 700;
       font-size: clamp(1rem, 2.6vw, 1.4rem);
-      overflow: hidden;
-      position: relative;
-      text-align: center;
       padding: 6px;
+      text-align: center;
     }
 
-    .reel.spin {
-      animation: pulse 0.35s infinite alternate;
+    .reel.spin { animation: pulse 0.35s infinite alternate; }
+
+    .wheel-wrap {
+      display: grid;
+      place-items: center;
+      padding: 8px 0;
     }
+
+    .wheel-pointer {
+      width: 0;
+      height: 0;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-top: 26px solid #fef08a;
+      margin-bottom: -4px;
+      z-index: 2;
+    }
+
+    .wheel {
+      width: min(340px, 78vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 8px solid rgba(148, 163, 184, 0.45);
+      transition: transform 3.8s cubic-bezier(.15,.8,.18,1);
+      background: conic-gradient(
+        #f97316 0deg 36deg,
+        #ef4444 36deg 72deg,
+        #f59e0b 72deg 108deg,
+        #84cc16 108deg 144deg,
+        #06b6d4 144deg 180deg,
+        #3b82f6 180deg 216deg,
+        #8b5cf6 216deg 252deg,
+        #ec4899 252deg 288deg,
+        #14b8a6 288deg 324deg,
+        #64748b 324deg 360deg
+      );
+      box-shadow: inset 0 0 26px rgba(2, 6, 23, 0.45);
+      position: relative;
+    }
+
+    .wheel-center {
+      position: absolute;
+      inset: 38%;
+      border-radius: 50%;
+      background: #111827;
+      display: grid;
+      place-items: center;
+      border: 2px solid rgba(148, 163, 184, 0.5);
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .capsule-machine {
+      max-width: 420px;
+      margin: 0 auto;
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+    }
+
+    .capsule-window {
+      width: 100%;
+      min-height: 130px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(34,211,238,.1), rgba(17,24,39,.95));
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 12px;
+      font-weight: 700;
+      line-height: 1.5;
+      font-size: 1.03rem;
+    }
+
+    .capsule {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 3px solid rgba(226, 232, 240, 0.6);
+      background: radial-gradient(circle at 30% 30%, #fef3c7, #f59e0b 65%, #b45309 100%);
+      display: grid;
+      place-items: center;
+      color: #111827;
+      font-weight: 900;
+      box-shadow: 0 10px 24px rgba(2, 6, 23, 0.45);
+    }
+
+    .capsule.roll { animation: wobble .25s linear infinite; }
 
     @keyframes pulse {
       from { box-shadow: inset 0 0 0 rgba(34, 211, 238, 0); }
       to { box-shadow: inset 0 0 16px rgba(34, 211, 238, 0.35); }
+    }
+
+    @keyframes wobble {
+      0% { transform: translateX(-4px) rotate(-8deg); }
+      50% { transform: translateX(4px) rotate(8deg); }
+      100% { transform: translateX(-4px) rotate(-8deg); }
     }
 
     .actions {
@@ -96,7 +222,7 @@
       align-items: center;
     }
 
-    button {
+    .draw-btn {
       border: none;
       cursor: pointer;
       border-radius: 999px;
@@ -105,11 +231,9 @@
       font-weight: 800;
       padding: 12px 20px;
       font-size: 1rem;
-      transition: transform .08s ease;
     }
 
-    button:active { transform: scale(0.98); }
-    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .draw-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
     .result {
       margin-top: 14px;
@@ -124,9 +248,19 @@
     }
 
     .result strong { font-size: 1.06rem; }
-
     .win { color: var(--ok); }
     .lose { color: var(--lose); }
+
+    .history {
+      margin-top: 12px;
+      color: #cbd5e1;
+      font-size: 0.88rem;
+    }
+
+    .history ul {
+      margin: 6px 0 0;
+      padding-left: 18px;
+    }
 
     .table-wrap {
       margin-top: 20px;
@@ -162,46 +296,61 @@
       font-size: .82rem;
       line-height: 1.55;
     }
-
-    .history {
-      margin-top: 12px;
-      color: #cbd5e1;
-      font-size: 0.88rem;
-    }
-
-    .history ul {
-      margin: 6px 0 0;
-      padding-left: 18px;
-    }
   </style>
 </head>
 <body>
   <main class="container">
-    <h1>🎰 16 週活動拉霸抽獎</h1>
-    <p class="sub">中獎率設定為 <strong>15%</strong>，未中獎顯示「銘謝惠顧」。本頁依你提供的機率配置模擬抽獎。</p>
+    <h1>🎉 16 週活動抽獎樂園</h1>
+    <p class="sub">你要的三種玩法：第一分頁拉霸、第二分頁轉盤、第三分頁扭蛋。三種玩法共用同一組獎池機率。</p>
 
-    <section class="slot">
-      <div class="reels" id="reels">
+    <div class="tabs" id="tabs">
+      <button class="tab-btn active" data-tab="slot">🎰 拉霸</button>
+      <button class="tab-btn" data-tab="wheel">🎡 轉盤</button>
+      <button class="tab-btn" data-tab="capsule">🟡 扭蛋</button>
+    </div>
+
+    <section class="panel active" id="panel-slot">
+      <h2 class="panel-title">第一頁：拉霸抽獎</h2>
+      <p class="panel-sub">按下按鈕後三個輪軸依序停下，顯示本次獎項。</p>
+      <div class="reels">
         <div class="reel" id="reel-1">準備中</div>
         <div class="reel" id="reel-2">準備中</div>
         <div class="reel" id="reel-3">準備中</div>
       </div>
+    </section>
 
-      <div class="actions">
-        <button id="spinBtn">開始抽獎</button>
-        <span id="drawCount">目前抽數：0</span>
-      </div>
-
-      <div class="result" id="resultBox">
-        <strong>按下「開始抽獎」進行拉霸！</strong>
-        <span>祝你好運 🍀</span>
-      </div>
-
-      <div class="history">
-        最近 10 抽：
-        <ul id="historyList"></ul>
+    <section class="panel" id="panel-wheel">
+      <h2 class="panel-title">第二頁：轉盤抽獎</h2>
+      <p class="panel-sub">轉盤會高速旋轉並停在此次中獎結果。</p>
+      <div class="wheel-wrap">
+        <div class="wheel-pointer"></div>
+        <div class="wheel" id="wheel"><div class="wheel-center">LUCK</div></div>
       </div>
     </section>
+
+    <section class="panel" id="panel-capsule">
+      <h2 class="panel-title">第三頁：扭蛋抽獎</h2>
+      <p class="panel-sub">扭蛋晃動後打開，揭曉你抽到的獎項。</p>
+      <div class="capsule-machine">
+        <div class="capsule-window" id="capsuleWindow">準備扭蛋中...</div>
+        <div class="capsule" id="capsuleBall">扭！</div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="draw-btn" id="drawBtn">開始抽獎</button>
+      <span id="drawCount">目前抽數：0</span>
+    </div>
+
+    <div class="result" id="resultBox">
+      <strong>選擇任一分頁後按下「開始抽獎」</strong>
+      <span>祝你好運 🍀</span>
+    </div>
+
+    <div class="history">
+      最近 10 抽：
+      <ul id="historyList"></ul>
+    </div>
 
     <section class="table-wrap">
       <table>
@@ -215,7 +364,7 @@
         <tbody id="probabilityBody"></tbody>
       </table>
     </section>
-    <p class="note">※ 大獎機率採 1 / 368,000；其餘採你提供的百分比。由於四捨五入，小數位可能有極小誤差。</p>
+    <p class="note">※ 大獎機率採 1 / 368,000；其餘採設定百分比。由於四捨五入，小數位可能有極小誤差。</p>
   </main>
 
   <script>
@@ -234,17 +383,30 @@
     const loseProbability = Math.max(0, 1 - prizePool.reduce((s, p) => s + p.probability, 0));
     prizePool.push({ tier: '-', label: '銘謝惠顧', probability: loseProbability, win: false });
 
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const panels = {
+      slot: document.getElementById('panel-slot'),
+      wheel: document.getElementById('panel-wheel'),
+      capsule: document.getElementById('panel-capsule')
+    };
+
     const reels = [
       document.getElementById('reel-1'),
       document.getElementById('reel-2'),
       document.getElementById('reel-3')
     ];
-    const spinBtn = document.getElementById('spinBtn');
-    const resultBox = document.getElementById('resultBox');
+    const wheel = document.getElementById('wheel');
+    const capsuleBall = document.getElementById('capsuleBall');
+    const capsuleWindow = document.getElementById('capsuleWindow');
+    const drawBtn = document.getElementById('drawBtn');
     const drawCountEl = document.getElementById('drawCount');
+    const resultBox = document.getElementById('resultBox');
     const historyList = document.getElementById('historyList');
 
+    let activeTab = 'slot';
     let drawCount = 0;
+    let spinning = false;
+    let wheelRotate = 0;
     const history = [];
     const reelSymbols = ['🍎', '🎮', '⭐', '💎', '🎁', '🎉', '銘謝惠顧'];
 
@@ -271,18 +433,27 @@
     }
 
     function setResult(prize) {
-      const winClass = prize.win ? 'win' : 'lose';
       resultBox.innerHTML = `
-        <strong class="${winClass}">${prize.win ? '🎉 恭喜中獎！' : '🙏 銘謝惠顧'}</strong>
+        <strong class="${prize.win ? 'win' : 'lose'}">${prize.win ? '🎉 恭喜中獎！' : '🙏 銘謝惠顧'}</strong>
         <span>結果：${prize.label}</span>
       `;
 
-      history.unshift(`${prize.win ? '中獎' : '未中'}｜${prize.label}`);
+      history.unshift(`${prize.win ? '中獎' : '未中'}｜${prize.label}（${activeTab}）`);
       if (history.length > 10) history.pop();
-      historyList.innerHTML = history.map(item => `<li>${item}</li>`).join('');
+      historyList.innerHTML = history.map((item) => `<li>${item}</li>`).join('');
     }
 
-    function startVisualSpin(finalText) {
+    function activateTab(tabName) {
+      activeTab = tabName;
+      tabButtons.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+      });
+      Object.entries(panels).forEach(([name, panel]) => {
+        panel.classList.toggle('active', name === tabName);
+      });
+    }
+
+    function animateSlot(prize) {
       reels.forEach((reel) => reel.classList.add('spin'));
       const intervals = reels.map((reel, idx) => setInterval(() => {
         reel.textContent = reelSymbols[(Math.floor(Math.random() * reelSymbols.length) + idx) % reelSymbols.length];
@@ -292,22 +463,58 @@
         setTimeout(() => {
           clearInterval(intervals[idx]);
           reel.classList.remove('spin');
-          reel.textContent = finalText;
-        }, 900 + idx * 500);
+          reel.textContent = prize.label;
+        }, 900 + idx * 420);
       });
+
+      return 2000;
     }
 
-    spinBtn.addEventListener('click', () => {
-      spinBtn.disabled = true;
+    function animateWheel(prize) {
+      const index = prizePool.findIndex((item) => item.label === prize.label);
+      const slice = 360 / prizePool.length;
+      const target = 360 - (index * slice + slice / 2);
+      wheelRotate += 360 * 5 + target + Math.random() * slice * 0.6;
+      wheel.style.transform = `rotate(${wheelRotate}deg)`;
+      return 3800;
+    }
+
+    function animateCapsule(prize) {
+      capsuleWindow.textContent = '扭蛋轉動中...';
+      capsuleBall.classList.add('roll');
+      setTimeout(() => {
+        capsuleBall.classList.remove('roll');
+        capsuleWindow.innerHTML = `🥚 打開扭蛋：<br>${prize.label}`;
+      }, 1800);
+      return 1900;
+    }
+
+    function runAnimation(prize) {
+      if (activeTab === 'wheel') return animateWheel(prize);
+      if (activeTab === 'capsule') return animateCapsule(prize);
+      return animateSlot(prize);
+    }
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (!spinning) activateTab(btn.dataset.tab);
+      });
+    });
+
+    drawBtn.addEventListener('click', () => {
+      if (spinning) return;
+      spinning = true;
+      drawBtn.disabled = true;
       const prize = randomByWeight(prizePool);
-      startVisualSpin(prize.label);
+      const duration = runAnimation(prize);
 
       setTimeout(() => {
         drawCount += 1;
         drawCountEl.textContent = `目前抽數：${drawCount}`;
         setResult(prize);
-        spinBtn.disabled = false;
-      }, 2100);
+        drawBtn.disabled = false;
+        spinning = false;
+      }, duration);
     });
 
     renderProbabilityTable();
