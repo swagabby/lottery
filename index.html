@@ -153,16 +153,40 @@
       position: relative;
     }
 
+    .wheel-labels {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .wheel-label {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 86px;
+      text-align: center;
+      font-size: 0.66rem;
+      font-weight: 800;
+      line-height: 1.15;
+      transform: rotate(var(--angle)) translateY(-132px) rotate(calc(-1 * var(--angle)));
+      transform-origin: center;
+      text-shadow: 0 1px 2px rgba(15, 23, 42, 0.8);
+      color: #f8fafc;
+    }
+
     .wheel-center {
       position: absolute;
       inset: 38%;
       border-radius: 50%;
-      background: #111827;
+      background: linear-gradient(180deg, #fef08a, #f59e0b);
       display: grid;
       place-items: center;
       border: 2px solid rgba(148, 163, 184, 0.5);
-      font-size: 0.74rem;
-      font-weight: 700;
+      font-size: 1.02rem;
+      font-weight: 900;
+      color: #111827;
+      cursor: pointer;
+      z-index: 3;
     }
 
     .capsule-machine {
@@ -214,12 +238,10 @@
       100% { transform: translateX(-4px) rotate(-8deg); }
     }
 
-    .actions {
+    .panel-actions {
       margin-top: 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
+      display: grid;
+      place-items: center;
     }
 
     .draw-btn {
@@ -262,34 +284,6 @@
       padding-left: 18px;
     }
 
-    .table-wrap {
-      margin-top: 20px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      border-radius: 12px;
-      overflow: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 680px;
-      font-size: 0.9rem;
-    }
-
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
-      text-align: left;
-      white-space: nowrap;
-    }
-
-    th {
-      color: #cbd5e1;
-      background: rgba(30, 41, 59, 0.6);
-      position: sticky;
-      top: 0;
-    }
-
     .note {
       margin-top: 8px;
       color: var(--muted);
@@ -317,14 +311,20 @@
         <div class="reel" id="reel-2">準備中</div>
         <div class="reel" id="reel-3">準備中</div>
       </div>
+      <div class="panel-actions">
+        <button class="draw-btn" id="slotDrawBtn">開始抽獎</button>
+      </div>
     </section>
 
     <section class="panel" id="panel-wheel">
       <h2 class="panel-title">第二頁：轉盤抽獎</h2>
-      <p class="panel-sub">轉盤會高速旋轉並停在此次中獎結果。</p>
+      <p class="panel-sub">獎項文字顯示在轉盤上，按下圓心 GO 開始抽獎。</p>
       <div class="wheel-wrap">
         <div class="wheel-pointer"></div>
-        <div class="wheel" id="wheel"><div class="wheel-center">LUCK</div></div>
+        <div class="wheel" id="wheel">
+          <div class="wheel-labels" id="wheelLabels"></div>
+          <button class="wheel-center" id="wheelGo">GO</button>
+        </div>
       </div>
     </section>
 
@@ -335,15 +335,15 @@
         <div class="capsule-window" id="capsuleWindow">準備扭蛋中...</div>
         <div class="capsule" id="capsuleBall">扭！</div>
       </div>
+      <div class="panel-actions">
+        <button class="draw-btn" id="capsuleDrawBtn">開始抽獎</button>
+      </div>
     </section>
 
-    <div class="actions">
-      <button class="draw-btn" id="drawBtn">開始抽獎</button>
-      <span id="drawCount">目前抽數：0</span>
-    </div>
+    <p id="drawCount">目前抽數：0</p>
 
     <div class="result" id="resultBox">
-      <strong>選擇任一分頁後按下「開始抽獎」</strong>
+      <strong>選擇任一分頁後按下抽獎按鈕</strong>
       <span>祝你好運 🍀</span>
     </div>
 
@@ -352,19 +352,7 @@
       <ul id="historyList"></ul>
     </div>
 
-    <section class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>獎項級距</th>
-            <th>獎項內容</th>
-            <th>機率設定</th>
-          </tr>
-        </thead>
-        <tbody id="probabilityBody"></tbody>
-      </table>
-    </section>
-    <p class="note">※ 大獎機率採 1 / 368,000；其餘採設定百分比。由於四捨五入，小數位可能有極小誤差。</p>
+    <p class="note" id="remainingStatus"></p>
   </main>
 
   <script>
@@ -382,6 +370,7 @@
 
     const loseProbability = Math.max(0, 1 - prizePool.reduce((s, p) => s + p.probability, 0));
     prizePool.push({ tier: '-', label: '銘謝惠顧', probability: loseProbability, win: false });
+    const unopenedPrizeLabels = new Set(prizePool.filter((item) => item.win).map((item) => item.label));
 
     const tabButtons = document.querySelectorAll('.tab-btn');
     const panels = {
@@ -396,12 +385,16 @@
       document.getElementById('reel-3')
     ];
     const wheel = document.getElementById('wheel');
+    const wheelGo = document.getElementById('wheelGo');
+    const wheelLabels = document.getElementById('wheelLabels');
     const capsuleBall = document.getElementById('capsuleBall');
     const capsuleWindow = document.getElementById('capsuleWindow');
-    const drawBtn = document.getElementById('drawBtn');
+    const slotDrawBtn = document.getElementById('slotDrawBtn');
+    const capsuleDrawBtn = document.getElementById('capsuleDrawBtn');
     const drawCountEl = document.getElementById('drawCount');
     const resultBox = document.getElementById('resultBox');
     const historyList = document.getElementById('historyList');
+    const remainingStatus = document.getElementById('remainingStatus');
 
     let activeTab = 'slot';
     let drawCount = 0;
@@ -420,19 +413,25 @@
       return items[items.length - 1];
     }
 
-    function renderProbabilityTable() {
-      const tbody = document.getElementById('probabilityBody');
-      tbody.innerHTML = prizePool.map((item) => {
-        const p = (item.probability * 100).toFixed(6).replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1');
-        return `<tr>
-          <td>${item.tier}</td>
-          <td>${item.label}</td>
-          <td>${p}%</td>
-        </tr>`;
+    function renderWheelLabels() {
+      const slice = 360 / prizePool.length;
+      wheelLabels.innerHTML = prizePool.map((item, index) => {
+        const angle = index * slice + slice / 2;
+        return `<span class="wheel-label" style="--angle:${angle}deg">${item.label}</span>`;
       }).join('');
     }
 
+    function updateRemainingStatus() {
+      const remaining = unopenedPrizeLabels.size;
+      const preview = Array.from(unopenedPrizeLabels).slice(0, 5).join('、');
+      remainingStatus.textContent = remaining === 0
+        ? '目前所有可中獎獎項都已經至少開出過一次。'
+        : `目前還有 ${remaining} 個獎項尚未開出${preview ? `（例：${preview}${remaining > 5 ? '...' : ''}）` : ''}`;
+    }
+
     function setResult(prize) {
+      if (prize.win) unopenedPrizeLabels.delete(prize.label);
+      updateRemainingStatus();
       resultBox.innerHTML = `
         <strong class="${prize.win ? 'win' : 'lose'}">${prize.win ? '🎉 恭喜中獎！' : '🙏 銘謝惠顧'}</strong>
         <span>結果：${prize.label}</span>
@@ -501,10 +500,13 @@
       });
     });
 
-    drawBtn.addEventListener('click', () => {
+    function drawFrom(tabName) {
       if (spinning) return;
+      activateTab(tabName);
       spinning = true;
-      drawBtn.disabled = true;
+      slotDrawBtn.disabled = true;
+      capsuleDrawBtn.disabled = true;
+      wheelGo.disabled = true;
       const prize = randomByWeight(prizePool);
       const duration = runAnimation(prize);
 
@@ -512,12 +514,19 @@
         drawCount += 1;
         drawCountEl.textContent = `目前抽數：${drawCount}`;
         setResult(prize);
-        drawBtn.disabled = false;
+        slotDrawBtn.disabled = false;
+        capsuleDrawBtn.disabled = false;
+        wheelGo.disabled = false;
         spinning = false;
       }, duration);
-    });
+    }
 
-    renderProbabilityTable();
+    slotDrawBtn.addEventListener('click', () => drawFrom('slot'));
+    capsuleDrawBtn.addEventListener('click', () => drawFrom('capsule'));
+    wheelGo.addEventListener('click', () => drawFrom('wheel'));
+
+    renderWheelLabels();
+    updateRemainingStatus();
   </script>
 </body>
 </html>
