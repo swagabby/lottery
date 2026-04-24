@@ -73,7 +73,7 @@
 
     .fake-marquee {
       margin: 0 0 12px;
-      padding: 8px 12px;
+      padding: 10px 14px;
       border-radius: var(--radius-s);
       border: 1px solid var(--primary);
       background: rgba(0, 210, 190, 0.08);
@@ -82,11 +82,13 @@
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
+      position: relative;
     }
     .fake-marquee span {
       display: inline-block;
-      animation: marqueeMove 8s linear infinite;
+      animation: marqueeMove 10s linear infinite;
       padding-left: 100%;
+      max-width: 100%;
     }
 
     h1 {
@@ -293,18 +295,60 @@
 
     /* Prize Remaining List */
     .prize-list {
+      list-style: none;
       margin: 0;
-      padding-left: 20px;
+      padding-left: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
     }
     .prize-item {
       color: var(--text-main);
       font-size: 14px;
+      border: 1px solid var(--surface-variant);
+      border-radius: var(--radius-s);
+      background: rgba(255, 255, 255, 0.02);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
-    .prize-name { font-weight: 600; color: var(--text-main); }
-    .prize-stock { font-size: 13px; color: var(--text-sec); margin-left: 8px; }
+    .prize-name-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      flex: 1;
+    }
+    .prize-name {
+      font-weight: 600;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sparkle-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(90deg, #ffd100, #fff0a4);
+      color: #6f4e00;
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(255, 209, 0, 0.45);
+      animation: sparklePulse 1s ease-in-out infinite alternate;
+    }
+    .prize-stock {
+      font-size: 12px;
+      color: var(--text-sec);
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
     .prize-item.empty { opacity: 0.4; }
     .prize-item.empty .prize-stock { color: var(--error); }
 
@@ -317,12 +361,25 @@
       from { transform: translateX(0); }
       to { transform: translateX(-100%); }
     }
+    @keyframes sparklePulse {
+      from { transform: scale(1); filter: brightness(1); }
+      to { transform: scale(1.08); filter: brightness(1.15); }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 16px; }
+      .panel { padding: 16px; }
+      .card { padding: 12px; }
+      .fake-marquee { font-size: 13px; }
+      .prize-item { padding: 9px 10px; }
+      .prize-name { max-width: 140px; }
+    }
   </style>
 </head>
 <body>
   <main class="container">
     <div class="header-area">
-      <div class="fake-marquee"><span>XXX（漲號）抽到XXXXX</span></div>
+      <div class="fake-marquee"><span id="marqueeText">🚀 載入歡呼快訊中...</span></div>
       <h1>🎁 【豪禮抽獎】Lv.1 回饋抽</h1>
       <p class="sub">16 週檔期．總計 368,000 抽．保底抽出 100 鑽</p>
     </div>
@@ -426,6 +483,34 @@
     let wheelRotate = 0;
     const historyLog = [];
     const slotSymbols =['💎', '🎁', '📱', '🎮', '🌟', '❌'];
+    const marqueeText = document.getElementById('marqueeText');
+
+    function randomName() {
+      const heads = ['小', '阿', '超', '夜', '喵', '星', '閃', '神'];
+      const tails = ['貓', '狼', '兔', '熊', '龍', '王', '寶', '仔'];
+      const suffix = Math.floor(Math.random() * 90 + 10);
+      return `${heads[Math.floor(Math.random() * heads.length)]}${tails[Math.floor(Math.random() * tails.length)]}${suffix}`;
+    }
+
+    function buildFakeCelebrationFeed() {
+      const winPrizes = prizePool.filter(p => p.win).slice(0, 7);
+      return winPrizes.map(prize => {
+        const account = `${randomName()}帳號`;
+        const cheers = ['全服歡呼中', '聊天室炸裂', '尖叫+撒花', '氣氛直接拉滿'];
+        const cheer = cheers[Math.floor(Math.random() * cheers.length)];
+        return `🎉 ${account} 抽到 ${prize.label}！${cheer} ✨`;
+      });
+    }
+
+    function startMarqueeFeed() {
+      const feed = buildFakeCelebrationFeed();
+      let idx = 0;
+      marqueeText.textContent = feed[idx];
+      setInterval(() => {
+        idx = (idx + 1) % feed.length;
+        marqueeText.textContent = feed[idx];
+      }, 3200);
+    }
 
     // 依權重隨機抽選
     function randomDraw(pool) {
@@ -475,9 +560,13 @@
       prizeList.innerHTML = prizePool.filter(p => p.win).map(item => {
         const remain = currentStock.get(item.label);
         const isEmpty = remain === 0;
+        const isTopPrize = item.tier === 'SSS';
         return `
           <li class="prize-item ${isEmpty ? 'empty' : ''}">
-            <span class="prize-name">${item.label}</span>
+            <span class="prize-name-wrap">
+              ${isTopPrize ? '<span class="sparkle-badge">✨MAX</span>' : ''}
+              <span class="prize-name">${item.label}</span>
+            </span>
             <span class="prize-stock">${isEmpty ? '已發完' : `剩餘：${remain}`}</span>
           </li>
         `;
@@ -568,6 +657,7 @@
     wheelGo.addEventListener('click', triggerDraw);
 
     // 初始化
+    startMarqueeFeed();
     renderWheel();
     renderPrizeList();
   </script>
