@@ -71,6 +71,24 @@
       margin-bottom: 24px;
     }
 
+    .fake-marquee {
+      margin: 0 0 12px;
+      padding: 8px 12px;
+      border-radius: var(--radius-s);
+      border: 1px solid var(--primary);
+      background: rgba(0, 210, 190, 0.08);
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .fake-marquee span {
+      display: inline-block;
+      animation: marqueeMove 8s linear infinite;
+      padding-left: 100%;
+    }
+
     h1 {
       margin: 0;
       font-size: 28px; /* Headline Small */
@@ -273,25 +291,20 @@
       line-height: 1.8;
     }
 
-    /* Prize Remaining Grid */
-    .prize-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 8px;
-    }
-    .prize-item {
-      background: var(--surface-container);
-      border: 1px solid var(--surface-variant);
-      border-radius: var(--radius-s);
-      padding: 8px;
-      text-align: center;
+    /* Prize Remaining List */
+    .prize-list {
+      margin: 0;
+      padding-left: 20px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
     }
-    .prize-tier { font-size: 12px; color: var(--yellow); }
-    .prize-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
-    .prize-stock { font-size: 12px; color: var(--text-sec); }
+    .prize-item {
+      color: var(--text-main);
+      font-size: 14px;
+    }
+    .prize-name { font-weight: 600; color: var(--text-main); }
+    .prize-stock { font-size: 13px; color: var(--text-sec); margin-left: 8px; }
     .prize-item.empty { opacity: 0.4; }
     .prize-item.empty .prize-stock { color: var(--error); }
 
@@ -300,11 +313,16 @@
       from { border-color: var(--surface-variant); }
       to { border-color: var(--primary); }
     }
+    @keyframes marqueeMove {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
   </style>
 </head>
 <body>
   <main class="container">
     <div class="header-area">
+      <div class="fake-marquee"><span>XXX（漲號）抽到XXXXX</span></div>
       <h1>🎁 【豪禮抽獎】Lv.1 回饋抽</h1>
       <p class="sub">16 週檔期．總計 368,000 抽．保底抽出 100 鑽</p>
     </div>
@@ -354,9 +372,9 @@
       <!-- 獎池剩餘數量 -->
       <div class="card">
         <div class="card-title">💎 獎池剩餘數量 (16週配置)</div>
-        <div class="prize-grid" id="prizeGrid">
+        <ol class="prize-list" id="prizeList">
           <!-- JS 動態生成 -->
-        </div>
+        </ol>
       </div>
     </div>
   </main>
@@ -400,7 +418,7 @@
     const drawCountEl = document.getElementById('drawCount');
     const resultBox = document.getElementById('resultBox');
     const historyList = document.getElementById('historyList');
-    const prizeGrid = document.getElementById('prizeGrid');
+    const prizeList = document.getElementById('prizeList');
 
     let activeTab = 'slot';
     let drawCount = 0;
@@ -453,16 +471,15 @@
     }
 
     // 渲染獎池剩餘數量 Dashboard
-    function renderPrizeGrid() {
-      prizeGrid.innerHTML = prizePool.filter(p => p.win).map(item => {
+    function renderPrizeList() {
+      prizeList.innerHTML = prizePool.filter(p => p.win).map(item => {
         const remain = currentStock.get(item.label);
         const isEmpty = remain === 0;
         return `
-          <div class="prize-item ${isEmpty ? 'empty' : ''}">
-            <div class="prize-tier">${item.tier}</div>
-            <div class="prize-name">${item.label}</div>
-            <div class="prize-stock">${isEmpty ? '已發完' : `剩餘: ${remain}`}</div>
-          </div>
+          <li class="prize-item ${isEmpty ? 'empty' : ''}">
+            <span class="prize-name">${item.label}</span>
+            <span class="prize-stock">${isEmpty ? '已發完' : `剩餘：${remain}`}</span>
+          </li>
         `;
       }).join('');
     }
@@ -473,7 +490,7 @@
         currentStock.set(prize.label, currentStock.get(prize.label) - 1);
       }
       
-      renderPrizeGrid();
+      renderPrizeList();
       
       resultBox.innerHTML = `
         <span class="${prize.win ? 'win' : 'lose'}">${prize.win ? '🎉 恭喜中獎！' : '🥺 銘謝惠顧'}</span>
@@ -552,7 +569,7 @@
 
     // 初始化
     renderWheel();
-    renderPrizeGrid();
+    renderPrizeList();
   </script>
 </body>
 </html>
