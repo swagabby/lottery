@@ -168,7 +168,7 @@
       font-size: 0.66rem;
       font-weight: 800;
       line-height: 1.15;
-      transform: rotate(var(--angle)) translateY(-132px) rotate(calc(-1 * var(--angle)));
+      transform: rotate(calc(var(--angle) + 90deg)) translateY(-132px);
       transform-origin: center;
       text-shadow: 0 1px 2px rgba(15, 23, 42, 0.8);
       color: #f8fafc;
@@ -290,6 +290,12 @@
       font-size: .82rem;
       line-height: 1.55;
     }
+
+    .remaining-list {
+      margin: 6px 0 0;
+      padding-left: 18px;
+      color: #cbd5e1;
+    }
   </style>
 </head>
 <body>
@@ -352,25 +358,29 @@
       <ul id="historyList"></ul>
     </div>
 
-    <p class="note" id="remainingStatus"></p>
+    <div class="note" id="remainingStatus"></div>
   </main>
 
   <script>
     const prizePool = [
-      { tier: 'SSS', label: 'iPhone 16', probability: 1 / 368000, win: true },
-      { tier: 'SS', label: 'PS5', probability: 1 / 368000, win: true },
-      { tier: 'S', label: 'Switch 2', probability: 1 / 368000, win: true },
-      { tier: '稀有度 1', label: '看到爽 (15 min)', probability: 0.001, win: true },
-      { tier: '稀有度 2', label: '看到爽 (10 min)', probability: 0.002, win: true },
-      { tier: '稀有度 3', label: '1,000 鑽', probability: 0.003, win: true },
-      { tier: '稀有度 4', label: '看到爽 (5 min)', probability: 0.004, win: true },
-      { tier: '稀有度 5', label: '500 鑽', probability: 0.005, win: true },
-      { tier: '稀有度 6', label: '100 鑽 (保底)', probability: 0.135, win: true }
+      { tier: 'SSS', label: 'iPhone 16', probability: 1 / 368000, win: true, stock: 1 },
+      { tier: 'SS', label: 'PS5', probability: 1 / 368000, win: true, stock: 1 },
+      { tier: 'S', label: 'Switch 2', probability: 1 / 368000, win: true, stock: 1 },
+      { tier: '稀有度 1', label: '看到爽 (15 min)', probability: 0.001, win: true, stock: 1 },
+      { tier: '稀有度 2', label: '看到爽 (10 min)', probability: 0.002, win: true, stock: 1 },
+      { tier: '稀有度 3', label: '1,000 鑽', probability: 0.003, win: true, stock: 1 },
+      { tier: '稀有度 4', label: '看到爽 (5 min)', probability: 0.004, win: true, stock: 1 },
+      { tier: '稀有度 5', label: '500 鑽', probability: 0.005, win: true, stock: 1 },
+      { tier: '稀有度 6', label: '100 鑽 (保底)', probability: 0.135, win: true, stock: 1 }
     ];
 
     const loseProbability = Math.max(0, 1 - prizePool.reduce((s, p) => s + p.probability, 0));
-    prizePool.push({ tier: '-', label: '銘謝惠顧', probability: loseProbability, win: false });
-    const unopenedPrizeLabels = new Set(prizePool.filter((item) => item.win).map((item) => item.label));
+    prizePool.push({ tier: '-', label: '銘謝惠顧', probability: loseProbability, win: false, stock: Infinity });
+    const prizeStock = new Map(
+      prizePool
+        .filter((item) => item.win)
+        .map((item) => [item.label, item.stock ?? 1])
+    );
 
     const tabButtons = document.querySelectorAll('.tab-btn');
     const panels = {
@@ -413,6 +423,23 @@
       return items[items.length - 1];
     }
 
+    function getCurrentPrizePool() {
+      let shiftedLoseProbability = 0;
+      const currentPool = prizePool
+        .map((item) => {
+          if (!item.win) return { ...item };
+          const remain = prizeStock.get(item.label) || 0;
+          if (remain > 0) return { ...item };
+          shiftedLoseProbability += item.probability;
+          return null;
+        })
+        .filter(Boolean);
+
+      const loseItem = currentPool.find((item) => !item.win);
+      if (loseItem) loseItem.probability += shiftedLoseProbability;
+      return currentPool;
+    }
+
     function renderWheelLabels() {
       const slice = 360 / prizePool.length;
       wheelLabels.innerHTML = prizePool.map((item, index) => {
@@ -422,15 +449,27 @@
     }
 
     function updateRemainingStatus() {
-      const remaining = unopenedPrizeLabels.size;
-      const preview = Array.from(unopenedPrizeLabels).slice(0, 5).join('、');
-      remainingStatus.textContent = remaining === 0
-        ? '目前所有可中獎獎項都已經至少開出過一次。'
-        : `目前還有 ${remaining} 個獎項尚未開出${preview ? `（例：${preview}${remaining > 5 ? '...' : ''}）` : ''}`;
+      const remainingEntries = Array.from(prizeStock.entries()).filter(([, count]) => count > 0);
+      const remaining = remainingEntries.length;
+      if (remaining === 0) {
+        remainingStatus.innerHTML = '目前所有可中獎獎項都已全數開出。';
+        return;
+      }
+
+      remainingStatus.innerHTML = `
+        目前還有 ${remaining} 個獎項尚未開出（例：${remainingEntries.slice(0, 5).map(([label]) => label).join('、')}${remaining > 5 ? '...' : ''}）<br>
+        直接看剩餘數量：
+        <ul class="remaining-list">
+          ${remainingEntries.map(([label, count]) => `<li>${label}：剩 ${count} 個</li>`).join('')}
+        </ul>
+      `;
     }
 
     function setResult(prize) {
-      if (prize.win) unopenedPrizeLabels.delete(prize.label);
+      if (prize.win && prizeStock.has(prize.label)) {
+        const nextStock = Math.max(0, (prizeStock.get(prize.label) || 0) - 1);
+        prizeStock.set(prize.label, nextStock);
+      }
       updateRemainingStatus();
       resultBox.innerHTML = `
         <strong class="${prize.win ? 'win' : 'lose'}">${prize.win ? '🎉 恭喜中獎！' : '🙏 銘謝惠顧'}</strong>
@@ -507,7 +546,8 @@
       slotDrawBtn.disabled = true;
       capsuleDrawBtn.disabled = true;
       wheelGo.disabled = true;
-      const prize = randomByWeight(prizePool);
+      const currentPool = getCurrentPrizePool();
+      const prize = randomByWeight(currentPool);
       const duration = runAnimation(prize);
 
       setTimeout(() => {
