@@ -3,17 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>16 週活動抽獎樂園</title>
+  <title>【豪禮抽獎】Lv.1 回饋抽</title>
   <style>
+    /* 
+      ====================================
+      SWAG Design Tokens Integration
+      ====================================
+    */
     :root {
-      --bg: #0f172a;
-      --card: #111827;
-      --accent: #f59e0b;
-      --accent-2: #22d3ee;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --ok: #34d399;
-      --lose: #f87171;
+      /* Typography */
+      --font-family: "PingFang TC", "Noto Sans TC", sans-serif;
+      
+      /* Surface & Background */
+      --surface: #191919;           /* Dark/Surface */
+      --surface-container: #232323; /* Dark/Surface Container */
+      --surface-variant: #474747;   /* Dark/Surface Container Variant (40% op) */
+      
+      /* Brand Colors */
+      --primary: #00D2BE;           /* Aquamarine 300 */
+      --primary-hover: rgba(0, 210, 190, 0.8);
+      --pink: #F6418D;              /* Loverse Theme */
+      --yellow: #FFD100;            /* Creator Theme */
+      --purple: #8238BA;            /* Asset Theme */
+      --blue: #60C4E8;              /* Info */
+      
+      /* Text & UI Stack */
+      --text-main: #FFFFFF;         /* On Primary Variant */
+      --text-sec: #C8C8C8;          /* Secondary */
+      --text-muted: #9B9B9B;        /* Tertiary Inverse */
+      --success: #15EA48;           /* Green */
+      --error: #CF0404;             /* Red */
+      --outline: #474747;           /* Outline */
+      
+      /* Shape & Spacing (Mode 1) */
+      --radius-xs: 4px;
+      --radius-s: 8px;
+      --radius-m: 12px;
+      --radius-l: 16px;
+      --radius-full: 999px;
     }
 
     * { box-sizing: border-box; }
@@ -21,310 +48,316 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-      color: var(--text);
-      background: radial-gradient(circle at top, #1e293b, var(--bg) 45%);
+      font-family: var(--font-family);
+      color: var(--text-main);
+      background: var(--surface);
       display: grid;
       place-items: center;
-      padding: 20px;
+      padding: 16px;
     }
 
     .container {
-      width: min(980px, 100%);
-      background: rgba(17, 24, 39, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      border-radius: 20px;
+      width: 100%;
+      max-width: 960px; /* Desktop Token standard */
+      background: var(--surface-container);
+      border: 1px solid var(--outline);
+      border-radius: var(--radius-l);
       padding: 24px;
-      box-shadow: 0 20px 45px rgba(2, 6, 23, 0.45);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.4);
+    }
+
+    .header-area {
+      text-align: center;
+      margin-bottom: 24px;
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(1.4rem, 2.8vw, 2rem);
+      font-size: 28px; /* Headline Small */
+      color: var(--yellow);
+      font-weight: 600;
     }
 
     .sub {
-      margin: 8px 0 16px;
-      color: var(--muted);
-      line-height: 1.6;
-      font-size: 0.96rem;
+      margin: 8px 0 0;
+      color: var(--text-sec);
+      font-size: 14px; /* Body Medium */
     }
 
+    /* Tabs */
     .tabs {
       display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 12px;
+      margin-bottom: 24px;
+      justify-content: center;
       flex-wrap: wrap;
     }
 
     .tab-btn {
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: #0b1220;
-      color: var(--text);
-      border-radius: 999px;
-      padding: 9px 16px;
-      font-weight: 700;
+      border: 1px solid var(--outline);
+      background: var(--surface);
+      color: var(--text-sec);
+      border-radius: var(--radius-full);
+      padding: 10px 24px;
+      font-size: 16px; /* Body Large */
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s;
     }
 
     .tab-btn.active {
-      border-color: rgba(34, 211, 238, 0.8);
-      box-shadow: inset 0 0 20px rgba(34, 211, 238, 0.25);
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(0, 210, 190, 0.1);
     }
 
+    /* Panels */
     .panel {
       display: none;
-      margin: 18px 0;
-      background: linear-gradient(135deg, #1f2937, #0b1220);
-      border-radius: 16px;
-      border: 1px solid rgba(96, 165, 250, 0.2);
-      padding: 18px;
+      background: var(--surface);
+      border-radius: var(--radius-m);
+      border: 1px solid var(--surface-variant);
+      padding: 24px;
+      text-align: center;
     }
 
     .panel.active { display: block; }
 
-    .panel-title {
-      margin: 0 0 8px;
-      font-size: 1.08rem;
-    }
-
-    .panel-sub {
-      margin: 0 0 14px;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
+    /* --- Slot Style --- */
     .reels {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 24px 0;
     }
 
     .reel {
-      height: 100px;
-      border-radius: 12px;
-      border: 1px solid rgba(156, 163, 175, 0.35);
-      background: #030712;
+      width: 120px;
+      height: 120px;
+      border-radius: var(--radius-m);
+      border: 2px solid var(--surface-variant);
+      background: var(--surface-container);
       display: grid;
       place-items: center;
-      font-weight: 700;
-      font-size: clamp(1rem, 2.6vw, 1.4rem);
-      padding: 6px;
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--primary);
       text-align: center;
+      padding: 8px;
     }
+    .reel.spin { animation: slotPulse 0.2s infinite alternate; color: var(--text-sec); }
 
-    .reel.spin { animation: pulse 0.35s infinite alternate; }
-
+    /* --- Wheel Style --- */
     .wheel-wrap {
       display: grid;
       place-items: center;
-      padding: 8px 0;
-    }
-
-    .wheel-pointer {
-      width: 0;
-      height: 0;
-      border-left: 16px solid transparent;
-      border-right: 16px solid transparent;
-      border-top: 26px solid #fef08a;
-      margin-bottom: -4px;
-      z-index: 2;
-    }
-
-    .wheel {
-      width: min(340px, 78vw);
-      aspect-ratio: 1;
-      border-radius: 50%;
-      border: 8px solid rgba(148, 163, 184, 0.45);
-      transition: transform 3.8s cubic-bezier(.15,.8,.18,1);
-      background: conic-gradient(
-        #f97316 0deg 36deg,
-        #ef4444 36deg 72deg,
-        #f59e0b 72deg 108deg,
-        #84cc16 108deg 144deg,
-        #06b6d4 144deg 180deg,
-        #3b82f6 180deg 216deg,
-        #8b5cf6 216deg 252deg,
-        #ec4899 252deg 288deg,
-        #14b8a6 288deg 324deg,
-        #64748b 324deg 360deg
-      );
-      box-shadow: inset 0 0 26px rgba(2, 6, 23, 0.45);
+      padding: 16px 0;
       position: relative;
     }
-
-    .wheel-labels {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
+    .wheel-pointer {
+      width: 0; height: 0;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-top: 24px solid var(--yellow);
+      margin-bottom: -10px;
+      z-index: 2;
     }
-
+    .wheel {
+      width: min(320px, 80vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 6px solid var(--surface-variant);
+      transition: transform 4s cubic-bezier(.15,.8,.18,1);
+      /* Token Colors matched to slices */
+      background: conic-gradient(
+        var(--pink) 0deg 36deg,
+        var(--surface-container) 36deg 72deg,
+        var(--yellow) 72deg 108deg,
+        var(--surface-container) 108deg 144deg,
+        var(--primary) 144deg 180deg,
+        var(--surface-container) 180deg 216deg,
+        var(--purple) 216deg 252deg,
+        var(--surface-container) 252deg 288deg,
+        var(--blue) 288deg 324deg,
+        var(--surface-container) 324deg 360deg
+      );
+      position: relative;
+      overflow: hidden;
+    }
+    .wheel-labels { position: absolute; inset: 0; pointer-events: none; }
     .wheel-label {
       position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 86px;
+      left: 50%; top: 50%;
+      width: 100px;
       text-align: center;
-      font-size: 0.66rem;
-      font-weight: 800;
-      line-height: 1.15;
-      transform: rotate(calc(var(--angle) + 90deg)) translateY(-132px);
+      font-size: 12px;
+      font-weight: 600;
+      transform: rotate(calc(var(--angle) + 90deg)) translateY(-120px);
       transform-origin: center;
-      text-shadow: 0 1px 2px rgba(15, 23, 42, 0.8);
-      color: #f8fafc;
+      color: var(--text-main);
+      text-shadow: 0 1px 4px #000;
     }
-
     .wheel-center {
       position: absolute;
       inset: 38%;
       border-radius: 50%;
-      background: linear-gradient(180deg, #fef08a, #f59e0b);
+      background: var(--surface);
+      border: 4px solid var(--primary);
       display: grid;
       place-items: center;
-      border: 2px solid rgba(148, 163, 184, 0.5);
-      font-size: 1.02rem;
-      font-weight: 900;
-      color: #111827;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
       cursor: pointer;
       z-index: 3;
     }
 
+    /* --- Capsule Style --- */
     .capsule-machine {
-      max-width: 420px;
-      margin: 0 auto;
       display: grid;
-      gap: 12px;
+      gap: 16px;
       justify-items: center;
+      margin: 24px 0;
     }
-
     .capsule-window {
       width: 100%;
-      min-height: 130px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      border-radius: 16px;
-      background: linear-gradient(180deg, rgba(34,211,238,.1), rgba(17,24,39,.95));
+      max-width: 300px;
+      min-height: 120px;
+      border: 1px solid var(--outline);
+      border-radius: var(--radius-m);
+      background: rgba(0, 210, 190, 0.05);
       display: grid;
       place-items: center;
-      text-align: center;
-      padding: 12px;
-      font-weight: 700;
-      line-height: 1.5;
-      font-size: 1.03rem;
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--primary);
+      padding: 16px;
     }
-
     .capsule {
-      width: 110px;
-      height: 110px;
+      width: 100px; height: 100px;
       border-radius: 50%;
-      border: 3px solid rgba(226, 232, 240, 0.6);
-      background: radial-gradient(circle at 30% 30%, #fef3c7, #f59e0b 65%, #b45309 100%);
+      border: 2px solid var(--outline);
+      background: radial-gradient(circle at 30% 30%, var(--yellow), #b45309);
       display: grid;
       place-items: center;
-      color: #111827;
-      font-weight: 900;
-      box-shadow: 0 10px 24px rgba(2, 6, 23, 0.45);
+      color: #111;
+      font-weight: 600;
+      font-size: 18px;
     }
+    .capsule.roll { animation: wobble .3s linear infinite; }
 
-    .capsule.roll { animation: wobble .25s linear infinite; }
-
-    @keyframes pulse {
-      from { box-shadow: inset 0 0 0 rgba(34, 211, 238, 0); }
-      to { box-shadow: inset 0 0 16px rgba(34, 211, 238, 0.35); }
-    }
-
-    @keyframes wobble {
-      0% { transform: translateX(-4px) rotate(-8deg); }
-      50% { transform: translateX(4px) rotate(8deg); }
-      100% { transform: translateX(-4px) rotate(-8deg); }
-    }
-
-    .panel-actions {
-      margin-top: 16px;
-      display: grid;
-      place-items: center;
-    }
-
+    /* Actions & Draw Button */
     .draw-btn {
       border: none;
+      border-radius: var(--radius-full);
+      background: var(--primary);
+      color: #000;
+      font-weight: 600;
+      padding: 12px 32px;
+      font-size: 16px;
       cursor: pointer;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent), #fb7185);
-      color: #111827;
-      font-weight: 800;
-      padding: 12px 20px;
-      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .draw-btn:hover:not(:disabled) { background: var(--primary-hover); }
+    .draw-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* Status & Dashboard */
+    .dashboard {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 768px) {
+      .dashboard { grid-template-columns: 1fr 1fr; }
     }
 
-    .draw-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--surface-variant);
+      border-radius: var(--radius-m);
+      padding: 16px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-sec);
+      margin: 0 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--surface-variant);
+    }
 
-    .result {
-      margin-top: 14px;
-      min-height: 52px;
-      border-radius: 10px;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(100, 116, 139, 0.3);
-      padding: 10px 12px;
+    .result-text { font-size: 18px; line-height: 1.5; }
+    .win { color: var(--success); font-weight: 600; }
+    .lose { color: var(--text-muted); font-weight: 600; }
+    
+    .history-list {
+      margin: 0; padding-left: 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    /* Prize Remaining Grid */
+    .prize-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+    }
+    .prize-item {
+      background: var(--surface-container);
+      border: 1px solid var(--surface-variant);
+      border-radius: var(--radius-s);
+      padding: 8px;
+      text-align: center;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
     }
+    .prize-tier { font-size: 12px; color: var(--yellow); }
+    .prize-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
+    .prize-stock { font-size: 12px; color: var(--text-sec); }
+    .prize-item.empty { opacity: 0.4; }
+    .prize-item.empty .prize-stock { color: var(--error); }
 
-    .result strong { font-size: 1.06rem; }
-    .win { color: var(--ok); }
-    .lose { color: var(--lose); }
-
-    .history {
-      margin-top: 12px;
-      color: #cbd5e1;
-      font-size: 0.88rem;
+    /* Animations */
+    @keyframes slotPulse {
+      from { border-color: var(--surface-variant); }
+      to { border-color: var(--primary); }
     }
-
-    .history ul {
-      margin: 6px 0 0;
-      padding-left: 18px;
-    }
-
-    .note {
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: .82rem;
-      line-height: 1.55;
-    }
-
-    .remaining-list {
-      margin: 6px 0 0;
-      padding-left: 18px;
-      color: #cbd5e1;
+    @keyframes wobble {
+      0% { transform: translateX(-4px) rotate(-10deg); }
+      50% { transform: translateX(4px) rotate(10deg); }
+      100% { transform: translateX(-4px) rotate(-10deg); }
     }
   </style>
 </head>
 <body>
   <main class="container">
-    <h1>🎉 16 週活動抽獎樂園</h1>
-    <p class="sub">你要的三種玩法：第一分頁拉霸、第二分頁轉盤、第三分頁扭蛋。三種玩法共用同一組獎池機率。</p>
-
-    <div class="tabs" id="tabs">
-      <button class="tab-btn active" data-tab="slot">🎰 拉霸</button>
-      <button class="tab-btn" data-tab="wheel">🎡 轉盤</button>
-      <button class="tab-btn" data-tab="capsule">🟡 扭蛋</button>
+    <div class="header-area">
+      <h1>🎁 【豪禮抽獎】Lv.1 回饋抽</h1>
+      <p class="sub">16 週檔期．總計 368,000 抽．保底抽出 100 鑽</p>
     </div>
 
+    <!-- 遊戲分頁 -->
+    <div class="tabs" id="tabs">
+      <button class="tab-btn active" data-tab="slot">🎰 經典拉霸</button>
+      <button class="tab-btn" data-tab="wheel">🎡 幸運轉盤</button>
+      <button class="tab-btn" data-tab="capsule">🟡 驚喜扭蛋</button>
+    </div>
+
+    <!-- 頁籤內容: 拉霸 -->
     <section class="panel active" id="panel-slot">
-      <h2 class="panel-title">第一頁：拉霸抽獎</h2>
-      <p class="panel-sub">按下按鈕後三個輪軸依序停下，顯示本次獎項。</p>
       <div class="reels">
-        <div class="reel" id="reel-1">準備中</div>
-        <div class="reel" id="reel-2">準備中</div>
-        <div class="reel" id="reel-3">準備中</div>
+        <div class="reel" id="reel-1">-</div>
+        <div class="reel" id="reel-2">-</div>
+        <div class="reel" id="reel-3">-</div>
       </div>
-      <div class="panel-actions">
-        <button class="draw-btn" id="slotDrawBtn">開始抽獎</button>
-      </div>
+      <button class="draw-btn" id="slotDrawBtn">消耗 1 次免費抽獎</button>
     </section>
 
+    <!-- 頁籤內容: 轉盤 -->
     <section class="panel" id="panel-wheel">
-      <h2 class="panel-title">第二頁：轉盤抽獎</h2>
-      <p class="panel-sub">獎項文字顯示在轉盤上，按下圓心 GO 開始抽獎。</p>
       <div class="wheel-wrap">
         <div class="wheel-pointer"></div>
         <div class="wheel" id="wheel">
@@ -334,66 +367,72 @@
       </div>
     </section>
 
+    <!-- 頁籤內容: 扭蛋 -->
     <section class="panel" id="panel-capsule">
-      <h2 class="panel-title">第三頁：扭蛋抽獎</h2>
-      <p class="panel-sub">扭蛋晃動後打開，揭曉你抽到的獎項。</p>
       <div class="capsule-machine">
-        <div class="capsule-window" id="capsuleWindow">準備扭蛋中...</div>
+        <div class="capsule-window" id="capsuleWindow">點擊按鈕扭出好禮</div>
         <div class="capsule" id="capsuleBall">扭！</div>
       </div>
-      <div class="panel-actions">
-        <button class="draw-btn" id="capsuleDrawBtn">開始抽獎</button>
-      </div>
+      <button class="draw-btn" id="capsuleDrawBtn">消耗 1 次免費抽獎</button>
     </section>
 
-    <p id="drawCount">目前抽數：0</p>
+    <!-- 資訊儀表板 -->
+    <div class="dashboard">
+      <!-- 開獎結果與歷史 -->
+      <div class="card">
+        <div class="card-title" id="drawCount">目前總抽數：0 抽</div>
+        <div class="result-text" id="resultBox">
+          <span class="text-sec">請選擇上方遊戲並點擊抽獎...</span>
+        </div>
+        <hr style="border:0; border-top:1px solid var(--surface-variant); margin: 16px 0;">
+        <div style="font-size: 14px; color: var(--text-sec); margin-bottom: 8px;">最近抽獎紀錄：</div>
+        <ul class="history-list" id="historyList">
+          <li>尚無紀錄</li>
+        </ul>
+      </div>
 
-    <div class="result" id="resultBox">
-      <strong>選擇任一分頁後按下抽獎按鈕</strong>
-      <span>祝你好運 🍀</span>
+      <!-- 獎池剩餘數量 -->
+      <div class="card">
+        <div class="card-title">💎 獎池剩餘數量 (16週配置)</div>
+        <div class="prize-grid" id="prizeGrid">
+          <!-- JS 動態生成 -->
+        </div>
+      </div>
     </div>
-
-    <div class="history">
-      最近 10 抽：
-      <ul id="historyList"></ul>
-    </div>
-
-    <div class="note" id="remainingStatus"></div>
   </main>
 
   <script>
-    const prizePool = [
-      { tier: 'SSS', label: 'iPhone 16', probability: 1 / 368000, win: true, stock: 1 },
-      { tier: 'SS', label: 'PS5', probability: 1 / 368000, win: true, stock: 1 },
-      { tier: 'S', label: 'Switch 2', probability: 1 / 368000, win: true, stock: 1 },
-      { tier: '稀有度 1', label: '看到爽 (15 min)', probability: 0.001, win: true, stock: 1 },
-      { tier: '稀有度 2', label: '看到爽 (10 min)', probability: 0.002, win: true, stock: 1 },
-      { tier: '稀有度 3', label: '1,000 鑽', probability: 0.003, win: true, stock: 1 },
-      { tier: '稀有度 4', label: '看到爽 (5 min)', probability: 0.004, win: true, stock: 1 },
-      { tier: '稀有度 5', label: '500 鑽', probability: 0.005, win: true, stock: 1 },
-      { tier: '稀有度 6', label: '100 鑽 (保底)', probability: 0.135, win: true, stock: 1 }
+    // 依據企劃書「獎項分配表 (16 週總配置)」：總抽數 368,000
+    const TOTAL_DRAWS = 368000;
+    
+    // 基礎獎池設定
+    const prizePool =[
+      { tier: 'SSS', label: 'iPhone 16', stock: 1, initProb: 1 / TOTAL_DRAWS, win: true },
+      { tier: 'SS', label: 'PS5', stock: 1, initProb: 1 / TOTAL_DRAWS, win: true },
+      { tier: 'S', label: 'Switch 2', stock: 1, initProb: 1 / TOTAL_DRAWS, win: true },
+      { tier: '稀有度 1', label: '看到爽 15min', stock: 368, initProb: 368 / TOTAL_DRAWS, win: true },
+      { tier: '稀有度 2', label: '看到爽 10min', stock: 736, initProb: 736 / TOTAL_DRAWS, win: true },
+      { tier: '稀有度 3', label: '1,000 鑽', stock: 1104, initProb: 1104 / TOTAL_DRAWS, win: true },
+      { tier: '稀有度 4', label: '看到爽 5min', stock: 1472, initProb: 1472 / TOTAL_DRAWS, win: true },
+      { tier: '稀有度 5', label: '500 鑽', stock: 1840, initProb: 1840 / TOTAL_DRAWS, win: true },
+      { tier: '稀有度 6', label: '100 鑽', stock: 49680, initProb: 49680 / TOTAL_DRAWS, win: true }
     ];
 
-    const loseProbability = Math.max(0, 1 - prizePool.reduce((s, p) => s + p.probability, 0));
-    prizePool.push({ tier: '-', label: '銘謝惠顧', probability: loseProbability, win: false, stock: Infinity });
-    const prizeStock = new Map(
-      prizePool
-        .filter((item) => item.win)
-        .map((item) => [item.label, item.stock ?? 1])
-    );
+    // 計算總中獎機率 (約 15%)，並加入未中獎(銘謝惠顧)補齊 100%
+    const totalWinProb = prizePool.reduce((acc, p) => acc + p.initProb, 0);
+    prizePool.push({ tier: '-', label: '銘謝惠顧', stock: '∞', initProb: 1 - totalWinProb, win: false });
 
-    const tabButtons = document.querySelectorAll('.tab-btn');
+    // 建立可動態扣減庫存的 Map
+    const currentStock = new Map(prizePool.map(p =>[p.label, p.stock]));
+
+    // DOM 元素
+    const tabBtns = document.querySelectorAll('.tab-btn');
     const panels = {
       slot: document.getElementById('panel-slot'),
       wheel: document.getElementById('panel-wheel'),
       capsule: document.getElementById('panel-capsule')
     };
-
-    const reels = [
-      document.getElementById('reel-1'),
-      document.getElementById('reel-2'),
-      document.getElementById('reel-3')
-    ];
+    const reels =[document.getElementById('reel-1'), document.getElementById('reel-2'), document.getElementById('reel-3')];
     const wheel = document.getElementById('wheel');
     const wheelGo = document.getElementById('wheelGo');
     const wheelLabels = document.getElementById('wheelLabels');
@@ -401,172 +440,176 @@
     const capsuleWindow = document.getElementById('capsuleWindow');
     const slotDrawBtn = document.getElementById('slotDrawBtn');
     const capsuleDrawBtn = document.getElementById('capsuleDrawBtn');
+    
     const drawCountEl = document.getElementById('drawCount');
     const resultBox = document.getElementById('resultBox');
     const historyList = document.getElementById('historyList');
-    const remainingStatus = document.getElementById('remainingStatus');
+    const prizeGrid = document.getElementById('prizeGrid');
 
     let activeTab = 'slot';
     let drawCount = 0;
     let spinning = false;
     let wheelRotate = 0;
-    const history = [];
-    const reelSymbols = ['🍎', '🎮', '⭐', '💎', '🎁', '🎉', '銘謝惠顧'];
+    const historyLog = [];
+    const slotSymbols =['💎', '🎁', '📱', '🎮', '🌟', '❌'];
 
-    function randomByWeight(items) {
+    // 依權重隨機抽選
+    function randomDraw(pool) {
       const rand = Math.random();
       let cumulative = 0;
-      for (const item of items) {
+      for (const item of pool) {
         cumulative += item.probability;
         if (rand <= cumulative) return item;
       }
-      return items[items.length - 1];
+      return pool[pool.length - 1]; // Fallback
     }
 
-    function getCurrentPrizePool() {
-      let shiftedLoseProbability = 0;
-      const currentPool = prizePool
-        .map((item) => {
-          if (!item.win) return { ...item };
-          const remain = prizeStock.get(item.label) || 0;
-          if (remain > 0) return { ...item };
-          shiftedLoseProbability += item.probability;
+    // 動態獲取當前獎池機率 (無庫存的獎項機率會轉移給「銘謝惠顧」)
+    function getDynamicPool() {
+      let shiftedLoseProb = 0;
+      const dynamicPool = prizePool.map(item => {
+        if (!item.win) return { ...item, probability: item.initProb };
+        
+        const remain = currentStock.get(item.label);
+        if (remain > 0) {
+          return { ...item, probability: item.initProb };
+        } else {
+          shiftedLoseProb += item.initProb; // 轉移機率
           return null;
-        })
-        .filter(Boolean);
+        }
+      }).filter(Boolean);
 
-      const loseItem = currentPool.find((item) => !item.win);
-      if (loseItem) loseItem.probability += shiftedLoseProbability;
-      return currentPool;
+      // 把擠出來的機率加給未中獎
+      const loseItem = dynamicPool.find(i => !i.win);
+      if (loseItem) loseItem.probability += shiftedLoseProb;
+      
+      return dynamicPool;
     }
 
-    function renderWheelLabels() {
+    // 渲染轉盤文字 (固定 10 格，抽出 10 個代表圖示或字)
+    function renderWheel() {
       const slice = 360 / prizePool.length;
       wheelLabels.innerHTML = prizePool.map((item, index) => {
         const angle = index * slice + slice / 2;
-        return `<span class="wheel-label" style="--angle:${angle}deg">${item.label}</span>`;
+        const shortName = item.label.substring(0,6);
+        return `<span class="wheel-label" style="--angle:${angle}deg">${shortName}</span>`;
       }).join('');
     }
 
-    function updateRemainingStatus() {
-      const remainingEntries = Array.from(prizeStock.entries()).filter(([, count]) => count > 0);
-      const remaining = remainingEntries.length;
-      if (remaining === 0) {
-        remainingStatus.innerHTML = '目前所有可中獎獎項都已全數開出。';
-        return;
-      }
-
-      remainingStatus.innerHTML = `
-        目前還有 ${remaining} 個獎項尚未開出（例：${remainingEntries.slice(0, 5).map(([label]) => label).join('、')}${remaining > 5 ? '...' : ''}）<br>
-        直接看剩餘數量：
-        <ul class="remaining-list">
-          ${remainingEntries.map(([label, count]) => `<li>${label}：剩 ${count} 個</li>`).join('')}
-        </ul>
-      `;
+    // 渲染獎池剩餘數量 Dashboard
+    function renderPrizeGrid() {
+      prizeGrid.innerHTML = prizePool.filter(p => p.win).map(item => {
+        const remain = currentStock.get(item.label);
+        const isEmpty = remain === 0;
+        return `
+          <div class="prize-item ${isEmpty ? 'empty' : ''}">
+            <div class="prize-tier">${item.tier}</div>
+            <div class="prize-name">${item.label}</div>
+            <div class="prize-stock">${isEmpty ? '已發完' : `剩餘: ${remain}`}</div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function setResult(prize) {
-      if (prize.win && prizeStock.has(prize.label)) {
-        const nextStock = Math.max(0, (prizeStock.get(prize.label) || 0) - 1);
-        prizeStock.set(prize.label, nextStock);
+    // 更新紀錄與結果
+    function handleResult(prize) {
+      if (prize.win && currentStock.get(prize.label) > 0) {
+        currentStock.set(prize.label, currentStock.get(prize.label) - 1);
       }
-      updateRemainingStatus();
+      
+      renderPrizeGrid();
+      
       resultBox.innerHTML = `
-        <strong class="${prize.win ? 'win' : 'lose'}">${prize.win ? '🎉 恭喜中獎！' : '🙏 銘謝惠顧'}</strong>
-        <span>結果：${prize.label}</span>
+        <span class="${prize.win ? 'win' : 'lose'}">${prize.win ? '🎉 恭喜中獎！' : '🥺 銘謝惠顧'}</span>
+        <br>
+        <span style="font-size:14px; color:var(--text-main);">獲得：${prize.label}</span>
       `;
 
-      history.unshift(`${prize.win ? '中獎' : '未中'}｜${prize.label}（${activeTab}）`);
-      if (history.length > 10) history.pop();
-      historyList.innerHTML = history.map((item) => `<li>${item}</li>`).join('');
+      historyLog.unshift(`[${activeTab === 'slot' ? '拉霸' : activeTab === 'wheel' ? '轉盤' : '扭蛋'}] ${prize.win ? '🟢' : '🔴'} ${prize.label}`);
+      if (historyLog.length > 5) historyLog.pop();
+      historyList.innerHTML = historyLog.map(log => `<li>${log}</li>`).join('');
     }
 
-    function activateTab(tabName) {
+    // 切換分頁
+    function switchTab(tabName) {
+      if (spinning) return;
       activeTab = tabName;
-      tabButtons.forEach((btn) => {
-        btn.classList.toggle('active', btn.dataset.tab === tabName);
-      });
-      Object.entries(panels).forEach(([name, panel]) => {
-        panel.classList.toggle('active', name === tabName);
-      });
+      tabBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
+      Object.entries(panels).forEach(([name, panel]) => panel.classList.toggle('active', name === tabName));
     }
 
-    function animateSlot(prize) {
-      reels.forEach((reel) => reel.classList.add('spin'));
-      const intervals = reels.map((reel, idx) => setInterval(() => {
-        reel.textContent = reelSymbols[(Math.floor(Math.random() * reelSymbols.length) + idx) % reelSymbols.length];
-      }, 90));
+    // 動畫 - 拉霸
+    function animSlot(prize) {
+      reels.forEach(r => r.classList.add('spin'));
+      const intervals = reels.map((r, i) => setInterval(() => {
+        r.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+      }, 100));
 
-      reels.forEach((reel, idx) => {
+      reels.forEach((r, i) => {
         setTimeout(() => {
-          clearInterval(intervals[idx]);
-          reel.classList.remove('spin');
-          reel.textContent = prize.label;
-        }, 900 + idx * 420);
+          clearInterval(intervals[i]);
+          r.classList.remove('spin');
+          r.textContent = prize.win ? (i === 2 ? '🎉' : '🎁') : '❌';
+          if(i===2) r.textContent = prize.label.substring(0,4);
+        }, 800 + i * 400);
       });
-
-      return 2000;
+      return 1800;
     }
 
-    function animateWheel(prize) {
-      const index = prizePool.findIndex((item) => item.label === prize.label);
+    // 動畫 - 轉盤
+    function animWheel(prize) {
+      const idx = prizePool.findIndex(p => p.label === prize.label);
       const slice = 360 / prizePool.length;
-      const target = 360 - (index * slice + slice / 2);
-      wheelRotate += 360 * 5 + target + Math.random() * slice * 0.6;
+      const targetDeg = 360 - (idx * slice + slice / 2);
+      wheelRotate += (360 * 6) + targetDeg; // 轉 6 圈 + 目標角度
       wheel.style.transform = `rotate(${wheelRotate}deg)`;
-      return 3800;
+      return 4000;
     }
 
-    function animateCapsule(prize) {
-      capsuleWindow.textContent = '扭蛋轉動中...';
+    // 動畫 - 扭蛋
+    function animCapsule(prize) {
+      capsuleWindow.innerHTML = '<span style="color:var(--text-sec)">轉蛋機啟動中...</span>';
       capsuleBall.classList.add('roll');
       setTimeout(() => {
         capsuleBall.classList.remove('roll');
-        capsuleWindow.innerHTML = `🥚 打開扭蛋：<br>${prize.label}`;
-      }, 1800);
-      return 1900;
+        capsuleWindow.innerHTML = `<span style="color:var(--text-main)">掉落：<br><span class="${prize.win?'win':'lose'}">${prize.label}</span></span>`;
+      }, 1500);
+      return 1600;
     }
 
-    function runAnimation(prize) {
-      if (activeTab === 'wheel') return animateWheel(prize);
-      if (activeTab === 'capsule') return animateCapsule(prize);
-      return animateSlot(prize);
-    }
-
-    tabButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        if (!spinning) activateTab(btn.dataset.tab);
-      });
-    });
-
-    function drawFrom(tabName) {
+    // 執行抽獎
+    function triggerDraw() {
       if (spinning) return;
-      activateTab(tabName);
       spinning = true;
-      slotDrawBtn.disabled = true;
-      capsuleDrawBtn.disabled = true;
-      wheelGo.disabled = true;
-      const currentPool = getCurrentPrizePool();
-      const prize = randomByWeight(currentPool);
-      const duration = runAnimation(prize);
+      slotDrawBtn.disabled = capsuleDrawBtn.disabled = wheelGo.disabled = true;
+      
+      const dynamicPool = getDynamicPool();
+      const prize = randomDraw(dynamicPool);
+      
+      let delay = 0;
+      if (activeTab === 'slot') delay = animSlot(prize);
+      else if (activeTab === 'wheel') delay = animWheel(prize);
+      else if (activeTab === 'capsule') delay = animCapsule(prize);
 
       setTimeout(() => {
-        drawCount += 1;
-        drawCountEl.textContent = `目前抽數：${drawCount}`;
-        setResult(prize);
-        slotDrawBtn.disabled = false;
-        capsuleDrawBtn.disabled = false;
-        wheelGo.disabled = false;
+        drawCount++;
+        drawCountEl.textContent = `目前總抽數：${drawCount} 抽`;
+        handleResult(prize);
+        
+        slotDrawBtn.disabled = capsuleDrawBtn.disabled = wheelGo.disabled = false;
         spinning = false;
-      }, duration);
+      }, delay);
     }
 
-    slotDrawBtn.addEventListener('click', () => drawFrom('slot'));
-    capsuleDrawBtn.addEventListener('click', () => drawFrom('capsule'));
-    wheelGo.addEventListener('click', () => drawFrom('wheel'));
+    // 綁定事件
+    tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+    slotDrawBtn.addEventListener('click', triggerDraw);
+    capsuleDrawBtn.addEventListener('click', triggerDraw);
+    wheelGo.addEventListener('click', triggerDraw);
 
-    renderWheelLabels();
-    updateRemainingStatus();
+    // 初始化
+    renderWheel();
+    renderPrizeGrid();
   </script>
 </body>
 </html>
