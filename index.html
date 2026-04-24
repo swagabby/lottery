@@ -163,7 +163,7 @@
       z-index: 2;
     }
     .wheel {
-      width: min(320px, 80vw);
+      width: min(340px, 80vw);
       aspect-ratio: 1;
       border-radius: 50%;
       border: 6px solid var(--surface-variant);
@@ -185,18 +185,27 @@
       overflow: hidden;
     }
     .wheel-labels { position: absolute; inset: 0; pointer-events: none; }
+    
+    /* 更新後的轉盤文字樣式：放射狀、朝外、向中間置中 */
     .wheel-label {
       position: absolute;
-      left: 50%; top: 50%;
-      width: 100px;
-      text-align: center;
-      font-size: 12px;
+      top: 0;
+      left: 50%;
+      width: 50%; /* 寬度為圓半徑 */
+      height: 100%; /* 高度與輪盤同高，方便以 0 50% 圓心為軸旋轉 */
+      transform-origin: 0 50%; /* 錨點設為圓心 */
+      transform: rotate(calc(var(--angle) - 90deg));
+      display: flex;
+      align-items: center;
+      justify-content: center; /* 讓文字在扇形半徑上置中 */
+      padding-left: 20px; /* 避開中央的 GO 按鈕 */
+      font-size: 14px;
       font-weight: 600;
-      transform: rotate(calc(var(--angle) + 90deg)) translateY(-120px);
-      transform-origin: center;
       color: var(--text-main);
-      text-shadow: 0 1px 4px #000;
+      text-shadow: 0 1px 4px #000; /* 加重陰影避免被背景色吃掉 */
+      white-space: nowrap; /* 不斷行 */
     }
+
     .wheel-center {
       position: absolute;
       inset: 38%;
@@ -211,40 +220,6 @@
       cursor: pointer;
       z-index: 3;
     }
-
-    /* --- Capsule Style --- */
-    .capsule-machine {
-      display: grid;
-      gap: 16px;
-      justify-items: center;
-      margin: 24px 0;
-    }
-    .capsule-window {
-      width: 100%;
-      max-width: 300px;
-      min-height: 120px;
-      border: 1px solid var(--outline);
-      border-radius: var(--radius-m);
-      background: rgba(0, 210, 190, 0.05);
-      display: grid;
-      place-items: center;
-      font-weight: 600;
-      font-size: 18px;
-      color: var(--primary);
-      padding: 16px;
-    }
-    .capsule {
-      width: 100px; height: 100px;
-      border-radius: 50%;
-      border: 2px solid var(--outline);
-      background: radial-gradient(circle at 30% 30%, var(--yellow), #b45309);
-      display: grid;
-      place-items: center;
-      color: #111;
-      font-weight: 600;
-      font-size: 18px;
-    }
-    .capsule.roll { animation: wobble .3s linear infinite; }
 
     /* Actions & Draw Button */
     .draw-btn {
@@ -325,11 +300,6 @@
       from { border-color: var(--surface-variant); }
       to { border-color: var(--primary); }
     }
-    @keyframes wobble {
-      0% { transform: translateX(-4px) rotate(-10deg); }
-      50% { transform: translateX(4px) rotate(10deg); }
-      100% { transform: translateX(-4px) rotate(-10deg); }
-    }
   </style>
 </head>
 <body>
@@ -339,11 +309,10 @@
       <p class="sub">16 週檔期．總計 368,000 抽．保底抽出 100 鑽</p>
     </div>
 
-    <!-- 遊戲分頁 -->
+    <!-- 遊戲分頁 (取消扭蛋) -->
     <div class="tabs" id="tabs">
       <button class="tab-btn active" data-tab="slot">🎰 經典拉霸</button>
       <button class="tab-btn" data-tab="wheel">🎡 幸運轉盤</button>
-      <button class="tab-btn" data-tab="capsule">🟡 驚喜扭蛋</button>
     </div>
 
     <!-- 頁籤內容: 拉霸 -->
@@ -365,15 +334,6 @@
           <button class="wheel-center" id="wheelGo">GO</button>
         </div>
       </div>
-    </section>
-
-    <!-- 頁籤內容: 扭蛋 -->
-    <section class="panel" id="panel-capsule">
-      <div class="capsule-machine">
-        <div class="capsule-window" id="capsuleWindow">點擊按鈕扭出好禮</div>
-        <div class="capsule" id="capsuleBall">扭！</div>
-      </div>
-      <button class="draw-btn" id="capsuleDrawBtn">消耗 1 次免費抽獎</button>
     </section>
 
     <!-- 資訊儀表板 -->
@@ -402,7 +362,7 @@
   </main>
 
   <script>
-    // 依據企劃書「獎項分配表 (16 週總配置)」：總抽數 368,000
+    // 總抽數 368,000
     const TOTAL_DRAWS = 368000;
     
     // 基礎獎池設定
@@ -418,7 +378,7 @@
       { tier: '稀有度 6', label: '100 鑽', stock: 49680, initProb: 49680 / TOTAL_DRAWS, win: true }
     ];
 
-    // 計算總中獎機率 (約 15%)，並加入未中獎(銘謝惠顧)補齊 100%
+    // 計算總中獎機率，並加入未中獎補齊 100%
     const totalWinProb = prizePool.reduce((acc, p) => acc + p.initProb, 0);
     prizePool.push({ tier: '-', label: '銘謝惠顧', stock: '∞', initProb: 1 - totalWinProb, win: false });
 
@@ -429,17 +389,13 @@
     const tabBtns = document.querySelectorAll('.tab-btn');
     const panels = {
       slot: document.getElementById('panel-slot'),
-      wheel: document.getElementById('panel-wheel'),
-      capsule: document.getElementById('panel-capsule')
+      wheel: document.getElementById('panel-wheel')
     };
     const reels =[document.getElementById('reel-1'), document.getElementById('reel-2'), document.getElementById('reel-3')];
     const wheel = document.getElementById('wheel');
     const wheelGo = document.getElementById('wheelGo');
     const wheelLabels = document.getElementById('wheelLabels');
-    const capsuleBall = document.getElementById('capsuleBall');
-    const capsuleWindow = document.getElementById('capsuleWindow');
     const slotDrawBtn = document.getElementById('slotDrawBtn');
-    const capsuleDrawBtn = document.getElementById('capsuleDrawBtn');
     
     const drawCountEl = document.getElementById('drawCount');
     const resultBox = document.getElementById('resultBox');
@@ -464,7 +420,7 @@
       return pool[pool.length - 1]; // Fallback
     }
 
-    // 動態獲取當前獎池機率 (無庫存的獎項機率會轉移給「銘謝惠顧」)
+    // 動態獲取當前獎池機率 (無庫存的機率轉移)
     function getDynamicPool() {
       let shiftedLoseProb = 0;
       const dynamicPool = prizePool.map(item => {
@@ -474,25 +430,25 @@
         if (remain > 0) {
           return { ...item, probability: item.initProb };
         } else {
-          shiftedLoseProb += item.initProb; // 轉移機率
+          shiftedLoseProb += item.initProb; 
           return null;
         }
       }).filter(Boolean);
 
-      // 把擠出來的機率加給未中獎
       const loseItem = dynamicPool.find(i => !i.win);
       if (loseItem) loseItem.probability += shiftedLoseProb;
       
       return dynamicPool;
     }
 
-    // 渲染轉盤文字 (固定 10 格，抽出 10 個代表圖示或字)
+    // 渲染轉盤文字 (採用放射狀排版)
     function renderWheel() {
       const slice = 360 / prizePool.length;
       wheelLabels.innerHTML = prizePool.map((item, index) => {
+        // 設定各自扇形的中心點角度
         const angle = index * slice + slice / 2;
-        const shortName = item.label.substring(0,6);
-        return `<span class="wheel-label" style="--angle:${angle}deg">${shortName}</span>`;
+        // 原本截斷文字，現在將全名直接顯示，靠外層 CSS `white-space: nowrap` + `align-items` 控制
+        return `<span class="wheel-label" style="--angle:${angle}deg">${item.label}</span>`;
       }).join('');
     }
 
@@ -525,7 +481,7 @@
         <span style="font-size:14px; color:var(--text-main);">獲得：${prize.label}</span>
       `;
 
-      historyLog.unshift(`[${activeTab === 'slot' ? '拉霸' : activeTab === 'wheel' ? '轉盤' : '扭蛋'}] ${prize.win ? '🟢' : '🔴'} ${prize.label}`);
+      historyLog.unshift(`[${activeTab === 'slot' ? '拉霸' : '轉盤'}] ${prize.win ? '🟢' : '🔴'} ${prize.label}`);
       if (historyLog.length > 5) historyLog.pop();
       historyList.innerHTML = historyLog.map(log => `<li>${log}</li>`).join('');
     }
@@ -561,27 +517,16 @@
       const idx = prizePool.findIndex(p => p.label === prize.label);
       const slice = 360 / prizePool.length;
       const targetDeg = 360 - (idx * slice + slice / 2);
-      wheelRotate += (360 * 6) + targetDeg; // 轉 6 圈 + 目標角度
+      wheelRotate += (360 * 6) + targetDeg; 
       wheel.style.transform = `rotate(${wheelRotate}deg)`;
       return 4000;
-    }
-
-    // 動畫 - 扭蛋
-    function animCapsule(prize) {
-      capsuleWindow.innerHTML = '<span style="color:var(--text-sec)">轉蛋機啟動中...</span>';
-      capsuleBall.classList.add('roll');
-      setTimeout(() => {
-        capsuleBall.classList.remove('roll');
-        capsuleWindow.innerHTML = `<span style="color:var(--text-main)">掉落：<br><span class="${prize.win?'win':'lose'}">${prize.label}</span></span>`;
-      }, 1500);
-      return 1600;
     }
 
     // 執行抽獎
     function triggerDraw() {
       if (spinning) return;
       spinning = true;
-      slotDrawBtn.disabled = capsuleDrawBtn.disabled = wheelGo.disabled = true;
+      slotDrawBtn.disabled = wheelGo.disabled = true;
       
       const dynamicPool = getDynamicPool();
       const prize = randomDraw(dynamicPool);
@@ -589,14 +534,13 @@
       let delay = 0;
       if (activeTab === 'slot') delay = animSlot(prize);
       else if (activeTab === 'wheel') delay = animWheel(prize);
-      else if (activeTab === 'capsule') delay = animCapsule(prize);
 
       setTimeout(() => {
         drawCount++;
         drawCountEl.textContent = `目前總抽數：${drawCount} 抽`;
         handleResult(prize);
         
-        slotDrawBtn.disabled = capsuleDrawBtn.disabled = wheelGo.disabled = false;
+        slotDrawBtn.disabled = wheelGo.disabled = false;
         spinning = false;
       }, delay);
     }
@@ -604,7 +548,6 @@
     // 綁定事件
     tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
     slotDrawBtn.addEventListener('click', triggerDraw);
-    capsuleDrawBtn.addEventListener('click', triggerDraw);
     wheelGo.addEventListener('click', triggerDraw);
 
     // 初始化
