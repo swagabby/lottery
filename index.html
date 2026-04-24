@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#191919" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>【豪禮抽獎】Lv.1 回饋抽</title>
   <style>
     /* 
@@ -49,6 +53,7 @@
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       font-family: var(--font-family);
       color: var(--text-main);
       background: var(--surface);
@@ -60,6 +65,8 @@
     .container {
       width: 100%;
       max-width: 960px; /* Desktop Token standard */
+      min-height: calc(100vh - 32px);
+      min-height: calc(100dvh - 32px);
       background: var(--surface-container);
       border: 1px solid var(--outline);
       border-radius: var(--radius-l);
@@ -87,7 +94,7 @@
     }
     .fake-marquee span {
       display: inline-block;
-      animation: marqueeMove 30s linear infinite;
+      animation: marqueeMove 45s linear infinite;
       padding-left: 100%;
       white-space: nowrap;
     }
@@ -383,7 +390,22 @@
     }
 
     @media (max-width: 480px) {
-      .container { padding: 16px; }
+      body {
+        display: block;
+        place-items: initial;
+        padding: 0;
+        background: var(--surface-container);
+      }
+      .container {
+        min-height: 100vh;
+        min-height: 100dvh;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        box-shadow: none;
+        padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+      }
       .panel { padding: 16px; }
       .card { padding: 12px; }
       .fake-marquee { font-size: 13px; }
@@ -392,6 +414,25 @@
       .wheel-label {
         font-size: 15px;
       }
+    }
+
+    body.is-embedded {
+      display: block;
+      padding: 0;
+      background: var(--surface-container);
+    }
+    body.is-embedded .container {
+      max-width: 480px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0 auto;
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+      border-bottom: 0;
+      box-shadow: none;
+      padding-top: calc(16px + env(safe-area-inset-top));
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
     }
   </style>
 </head>
@@ -518,6 +559,11 @@
     const wheelSegments = wheelOrder
       .map(label => prizePool.find(prize => prize.label === label))
       .filter(Boolean);
+
+    const isEmbeddedView = window.self !== window.top;
+    if (isEmbeddedView) {
+      document.body.classList.add('is-embedded');
+    }
 
     function randomAccount() {
       const chars = 'abcdefghijklmnopqrstuvwxyz';
