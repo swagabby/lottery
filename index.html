@@ -87,9 +87,9 @@
     }
     .fake-marquee span {
       display: inline-block;
-      animation: marqueeMove 10s linear infinite;
+      animation: marqueeMove 30s linear infinite;
       padding-left: 100%;
-      max-width: 100%;
+      white-space: nowrap;
     }
 
     h1 {
@@ -189,19 +189,7 @@
       border-radius: 50%;
       border: 6px solid var(--surface-variant);
       transition: transform 4s cubic-bezier(.15,.8,.18,1);
-      /* Token Colors matched to slices */
-      background: conic-gradient(
-        color-mix(in srgb, var(--pink) 78%, white 22%) 0deg 36deg,
-        color-mix(in srgb, var(--surface-soft) 82%, white 18%) 36deg 72deg,
-        color-mix(in srgb, var(--yellow) 78%, white 22%) 72deg 108deg,
-        color-mix(in srgb, var(--surface-soft) 82%, white 18%) 108deg 144deg,
-        color-mix(in srgb, var(--primary) 78%, white 22%) 144deg 180deg,
-        color-mix(in srgb, var(--surface-soft) 82%, white 18%) 180deg 216deg,
-        color-mix(in srgb, var(--purple) 78%, white 22%) 216deg 252deg,
-        color-mix(in srgb, var(--surface-soft) 82%, white 18%) 252deg 288deg,
-        color-mix(in srgb, var(--blue) 78%, white 22%) 288deg 324deg,
-        color-mix(in srgb, var(--surface-soft) 82%, white 18%) 324deg 360deg
-      );
+      background: var(--wheel-bg, color-mix(in srgb, var(--surface-soft) 82%, white 18%));
       position: relative;
       overflow: hidden;
     }
@@ -225,6 +213,10 @@
       color: var(--text-main);
       text-shadow: 0 1px 4px #000; /* 加重陰影避免被背景色吃掉 */
       white-space: nowrap; /* 不斷行 */
+    }
+    .wheel-label.lose {
+      color: #fff;
+      text-shadow: 0 1px 4px #000;
     }
 
     .wheel-center {
@@ -511,32 +503,51 @@
     const historyLog = [];
     const slotSymbols =['💎', '🎁', '📱', '🎮', '🌟', '❌'];
     const marqueeText = document.getElementById('marqueeText');
+    const wheelOrder = [
+      'iPhone 16',
+      '100 鑽',
+      '看到爽 5min',
+      '銘謝惠顧',
+      'PS5',
+      '500 鑽',
+      '看到爽 10min',
+      '1,000 鑽',
+      'Switch 2',
+      '看到爽 15min'
+    ];
+    const wheelSegments = wheelOrder
+      .map(label => prizePool.find(prize => prize.label === label))
+      .filter(Boolean);
 
-    function randomName() {
-      const heads = ['小', '阿', '超', '夜', '喵', '星', '閃', '神'];
-      const tails = ['貓', '狼', '兔', '熊', '龍', '王', '寶', '仔'];
-      const suffix = Math.floor(Math.random() * 90 + 10);
-      return `${heads[Math.floor(Math.random() * heads.length)]}${tails[Math.floor(Math.random() * tails.length)]}${suffix}`;
+    function randomAccount() {
+      const chars = 'abcdefghijklmnopqrstuvwxyz';
+      const letters = Array.from({ length: 3 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+      const numbers = String(Math.floor(Math.random() * 9000) + 1000);
+      return `${letters}${numbers}`;
+    }
+
+    function getPrizeEmoji(label) {
+      if (label.includes('iPhone')) return '📱';
+      if (label.includes('PS5') || label.includes('Switch')) return '🎮';
+      if (label.includes('看到爽')) return '👀';
+      if (label.includes('鑽')) return '💎';
+      return '🎁';
     }
 
     function buildFakeCelebrationFeed() {
-      const winPrizes = prizePool.filter(p => p.win).slice(0, 7);
-      return winPrizes.map(prize => {
-        const account = `${randomName()}帳號`;
-        const cheers = ['全服歡呼中', '聊天室炸裂', '尖叫+撒花', '氣氛直接拉滿'];
-        const cheer = cheers[Math.floor(Math.random() * cheers.length)];
-        return `🎉 ${account} 抽到 ${prize.label}！${cheer} ✨`;
-      });
+      const winPrizes = prizePool.filter(p => p.win);
+      const feed = [];
+      for (let i = 0; i < 24; i++) {
+        const prize = winPrizes[Math.floor(Math.random() * winPrizes.length)];
+        feed.push(`恭喜 ${randomAccount()} 抽中 ${prize.label} ${getPrizeEmoji(prize.label)}！`);
+      }
+      return feed;
     }
 
     function startMarqueeFeed() {
       const feed = buildFakeCelebrationFeed();
-      let idx = 0;
-      marqueeText.textContent = feed[idx];
-      setInterval(() => {
-        idx = (idx + 1) % feed.length;
-        marqueeText.textContent = feed[idx];
-      }, 3200);
+      const separator = '　✨　';
+      marqueeText.textContent = `${feed.join(separator)}${separator}${feed.join(separator)}`;
     }
 
     // 依權重隨機抽選
@@ -573,12 +584,27 @@
 
     // 渲染轉盤文字 (採用放射狀排版)
     function renderWheel() {
-      const slice = 360 / prizePool.length;
-      wheelLabels.innerHTML = prizePool.map((item, index) => {
+      const slice = 360 / wheelSegments.length;
+      const wheelBg = wheelSegments.map((item, index) => {
+        const startDeg = index * slice;
+        const endDeg = startDeg + slice;
+        let color = 'color-mix(in srgb, var(--surface-soft) 82%, white 18%)';
+        if (item.label === '銘謝惠顧') color = '#000000';
+        else if (item.label.includes('鑽')) color = 'color-mix(in srgb, var(--blue) 76%, white 24%)';
+        else if (item.label.includes('看到爽')) color = 'color-mix(in srgb, var(--success) 72%, black 18%)';
+        else if (item.tier === 'SSS') color = 'color-mix(in srgb, var(--yellow) 78%, white 22%)';
+        else if (item.tier === 'SS') color = 'color-mix(in srgb, var(--pink) 78%, white 22%)';
+        else if (item.tier === 'S') color = 'color-mix(in srgb, var(--purple) 76%, white 24%)';
+        return `${color} ${startDeg}deg ${endDeg}deg`;
+      }).join(', ');
+      wheel.style.setProperty('--wheel-bg', `conic-gradient(${wheelBg})`);
+
+      wheelLabels.innerHTML = wheelSegments.map((item, index) => {
         // 設定各自扇形的中心點角度
         const angle = index * slice + slice / 2;
         // 原本截斷文字，現在將全名直接顯示，靠外層 CSS `white-space: nowrap` + `align-items` 控制
-        return `<span class="wheel-label" style="--angle:${angle}deg">${item.label}</span>`;
+        const loseClass = item.label === '銘謝惠顧' ? 'lose' : '';
+        return `<span class="wheel-label ${loseClass}" style="--angle:${angle}deg">${item.label}</span>`;
       }).join('');
     }
 
@@ -649,8 +675,8 @@
 
     // 動畫 - 轉盤
     function animWheel(prize) {
-      const idx = prizePool.findIndex(p => p.label === prize.label);
-      const slice = 360 / prizePool.length;
+      const idx = wheelSegments.findIndex(p => p.label === prize.label);
+      const slice = 360 / wheelSegments.length;
       const targetDeg = 360 - (idx * slice + slice / 2);
       wheelRotate += (360 * 6) + targetDeg; 
       wheel.style.transform = `rotate(${wheelRotate}deg)`;
