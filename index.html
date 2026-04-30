@@ -3,764 +3,246 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#191919" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <title>【豪禮抽獎】Lv.1 回饋抽</title>
+  <title>全站搶鑽大戰｜千萬鑽石免費送</title>
   <style>
-    /* 
-      ====================================
-      SWAG Design Tokens Integration
-      ====================================
-    */
     :root {
-      /* Typography */
-      --font-family: "PingFang TC", "Noto Sans TC", sans-serif;
-      
-      /* Surface & Background */
-      --surface: #191919;           /* Dark/Surface */
-      --surface-container: #232323; /* Dark/Surface Container */
-      --surface-variant: #474747;   /* Dark/Surface Container Variant (40% op) */
-      
-      /* Brand Colors */
-      --primary: #00D2BE;           /* Aquamarine 300 */
-      --primary-hover: rgba(0, 210, 190, 0.8);
-      --pink: #F6418D;              /* Loverse Theme */
-      --yellow: #FFD100;            /* Creator Theme */
-      --purple: #8238BA;            /* Asset Theme */
-      --blue: #60C4E8;              /* Info */
-      --surface-soft: #2b2b2b;      /* Softer neutral for visual comfort */
-      
-      /* Text & UI Stack */
-      --text-main: #FFFFFF;         /* On Primary Variant */
-      --text-sec: #C8C8C8;          /* Secondary */
-      --text-muted: #9B9B9B;        /* Tertiary Inverse */
-      --success: #15EA48;           /* Green */
-      --error: #CF0404;             /* Red */
-      --outline: #474747;           /* Outline */
-      
-      /* Shape & Spacing (Mode 1) */
-      --radius-xs: 4px;
-      --radius-s: 8px;
-      --radius-m: 12px;
-      --radius-l: 16px;
-      --radius-full: 999px;
+      --bg: #121212;
+      --card: #1e1e1e;
+      --line: #343434;
+      --text: #fff;
+      --muted: #b8b8b8;
+      --brand: #00d2be;
+      --gold: #ffd54d;
+      --ok: #3ddc84;
+      --warn: #ff7070;
+      --r: 14px;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
-      min-height: 100vh;
-      min-height: 100dvh;
-      font-family: var(--font-family);
-      color: var(--text-main);
-      background: var(--surface);
-      display: grid;
-      place-items: center;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "PingFang TC", "Noto Sans TC", sans-serif;
       padding: 16px;
     }
-
-    .container {
-      width: 100%;
-      max-width: 960px; /* Desktop Token standard */
-      min-height: calc(100vh - 32px);
-      min-height: calc(100dvh - 32px);
-      background: var(--surface-container);
-      border: 1px solid var(--outline);
-      border-radius: var(--radius-l);
-      padding: 24px;
-      box-shadow: 0 16px 32px rgba(0,0,0,0.4);
-    }
-
-    .header-area {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .fake-marquee {
-      margin: 0 0 12px;
-      padding: 10px 14px;
-      border-radius: var(--radius-s);
-      border: 1px solid var(--primary);
-      background: rgba(0, 210, 190, 0.08);
-      color: var(--primary);
-      font-size: 14px;
-      font-weight: 600;
+    .app { max-width: 1080px; margin: 0 auto; display: grid; gap: 16px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; }
+    h1 { margin: 0 0 8px; color: var(--gold); }
+    h2 { margin: 0 0 12px; font-size: 20px; }
+    p { margin: 6px 0; color: var(--muted); }
+    .marquee {
       white-space: nowrap;
       overflow: hidden;
-      position: relative;
-    }
-    .fake-marquee span {
-      display: inline-block;
-      animation: marqueeMove 45s linear infinite;
-      padding-left: 100%;
-      white-space: nowrap;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 28px; /* Headline Small */
-      color: var(--yellow);
+      border: 1px solid var(--brand);
+      border-radius: 999px;
+      padding: 10px 12px;
+      color: var(--brand);
       font-weight: 600;
     }
+    .marquee span { display: inline-block; padding-left: 100%; animation: move 30s linear infinite; }
+    @keyframes move { from { transform: translateX(0) } to { transform: translateX(-100%) } }
 
-    .sub {
-      margin: 8px 0 0;
-      color: var(--text-sec);
-      font-size: 14px; /* Body Medium */
+    .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    @media (min-width: 860px) { .grid { grid-template-columns: 1.2fr 1fr; } }
+
+    .kpi { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
+    .kpi .item { background: #181818; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+    .label { font-size: 12px; color: var(--muted); }
+    .value { font-size: 22px; font-weight: 700; margin-top: 6px; }
+
+    .role-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+    .role-btn {
+      background: #191919; color: var(--muted); border: 1px solid var(--line); border-radius: 999px;
+      padding: 8px 14px; cursor: pointer; font-weight: 600;
     }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn {
-      border: 1px solid var(--outline);
-      background: var(--surface);
-      color: var(--text-sec);
-      border-radius: var(--radius-full);
-      padding: 10px 24px;
-      font-size: 16px; /* Body Large */
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .tab-btn.active {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: rgba(0, 210, 190, 0.1);
-    }
-
-    /* Panels */
-    .panel {
-      display: none;
-      background: var(--surface-soft);
-      border-radius: var(--radius-m);
-      border: 1px solid var(--surface-variant);
-      padding: 24px;
-      text-align: center;
-    }
-
+    .role-btn.active { color: var(--brand); border-color: var(--brand); }
+    .panel { display: none; }
     .panel.active { display: block; }
 
-    /* --- Slot Style --- */
-    .reels {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin: 24px 0;
-    }
+    .cta { background: var(--brand); color: #001311; border: 0; border-radius: 999px; padding: 12px 22px; font-weight: 700; cursor: pointer; }
+    .cta:disabled { opacity: .4; cursor: not-allowed; }
 
-    .reel {
-      width: 120px;
-      height: 120px;
-      border-radius: var(--radius-m);
-      border: 2px solid var(--surface-variant);
-      background: var(--surface-container);
-      display: grid;
-      place-items: center;
-      font-weight: 600;
-      font-size: 20px;
-      color: var(--primary);
-      text-align: center;
-      padding: 8px;
-    }
-    .reel.spin { animation: slotPulse 0.2s infinite alternate; color: var(--text-sec); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 8px; text-align: left; }
+    th { color: var(--muted); }
 
-    /* --- Wheel Style --- */
-    .wheel-wrap {
-      display: grid;
-      place-items: center;
-      padding: 16px 0;
-      position: relative;
-    }
-    .wheel-pointer {
-      width: 0; height: 0;
-      border-left: 16px solid transparent;
-      border-right: 16px solid transparent;
-      border-top: 24px solid var(--yellow);
-      margin-bottom: -10px;
-      z-index: 2;
-    }
-    .wheel {
-      width: min(340px, 80vw);
-      aspect-ratio: 1;
-      border-radius: 50%;
-      border: 6px solid var(--surface-variant);
-      transition: transform 4s cubic-bezier(.15,.8,.18,1);
-      background: var(--wheel-bg, color-mix(in srgb, var(--surface-soft) 82%, white 18%));
-      position: relative;
-      overflow: hidden;
-    }
-    .wheel-labels { position: absolute; inset: 0; pointer-events: none; }
-    
-    /* 更新後的轉盤文字樣式：放射狀、朝外、向中間置中 */
-    .wheel-label {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 50%; /* 寬度為圓半徑 */
-      height: 100%; /* 高度與輪盤同高，方便以 0 50% 圓心為軸旋轉 */
-      transform-origin: 0 50%; /* 錨點設為圓心 */
-      transform: rotate(calc(var(--angle) - 90deg));
-      display: flex;
-      align-items: center;
-      justify-content: center; /* 讓文字在扇形半徑上置中 */
-      padding-left: 20px; /* 避開中央的 GO 按鈕 */
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-main);
-      text-shadow: 0 1px 4px #000; /* 加重陰影避免被背景色吃掉 */
-      white-space: nowrap; /* 不斷行 */
-    }
-    .wheel-label.lose {
-      color: #fff;
-      text-shadow: 0 1px 4px #000;
-    }
-
-    .wheel-center {
-      position: absolute;
-      inset: 38%;
-      border-radius: 50%;
-      background: var(--surface);
-      border: 4px solid var(--primary);
-      display: grid;
-      place-items: center;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--primary);
-      cursor: pointer;
-      z-index: 3;
-    }
-
-    /* Actions & Draw Button */
-    .draw-btn {
-      border: none;
-      border-radius: var(--radius-full);
-      background: var(--primary);
-      color: #000;
-      font-weight: 600;
-      padding: 12px 32px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .draw-btn:hover:not(:disabled) { background: var(--primary-hover); }
-    .draw-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-    /* Status & Dashboard */
-    .dashboard {
-      margin-top: 24px;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-    @media (min-width: 768px) {
-      .dashboard { grid-template-columns: 1fr 1fr; }
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--surface-variant);
-      border-radius: var(--radius-m);
-      padding: 16px;
-    }
-    .card-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-sec);
-      margin: 0 0 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--surface-variant);
-    }
-
-    .result-text { font-size: 18px; line-height: 1.5; }
-    .win { color: var(--success); font-weight: 600; }
-    .lose { color: var(--text-muted); font-weight: 600; }
-    
-    .history-list {
-      margin: 0; padding-left: 20px;
-      color: var(--text-muted);
-      font-size: 14px;
-      line-height: 1.8;
-    }
-
-    /* Prize Remaining List */
-    .prize-list {
-      list-style: none;
-      margin: 0;
-      padding-left: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .prize-item {
-      color: var(--text-main);
-      font-size: 14px;
-      border: 1px solid var(--surface-variant);
-      border-radius: var(--radius-s);
-      background: rgba(255, 255, 255, 0.02);
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .prize-name-wrap {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      min-width: 0;
-      flex: 1;
-    }
-    .prize-name {
-      font-weight: 600;
-      color: var(--text-main);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .sparkle-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 34px;
-      height: 20px;
-      padding: 0 6px;
-      border-radius: var(--radius-full);
-      background: linear-gradient(90deg, #ffd100, #fff0a4);
-      color: #6f4e00;
-      font-size: 11px;
-      font-weight: 700;
-      box-shadow: 0 0 10px rgba(255, 209, 0, 0.45);
-      animation: sparklePulse 1s ease-in-out infinite alternate;
-    }
-    .prize-item.top-prize {
-      position: relative;
-      border-width: 2px;
-      border-color: color-mix(in srgb, var(--yellow) 55%, var(--outline) 45%);
-    }
-    .prize-item.top-prize-1 {
-      box-shadow:
-        0 0 0 1px color-mix(in srgb, var(--yellow) 65%, transparent),
-        0 0 24px rgba(255, 209, 0, 0.55);
-    }
-    .prize-item.top-prize-2 {
-      box-shadow:
-        0 0 0 1px color-mix(in srgb, var(--yellow) 48%, transparent),
-        0 0 16px rgba(255, 209, 0, 0.38);
-    }
-    .prize-item.top-prize-3 {
-      box-shadow:
-        0 0 0 1px color-mix(in srgb, var(--yellow) 36%, transparent),
-        0 0 10px rgba(255, 209, 0, 0.25);
-    }
-    .prize-item.top-prize .prize-name {
-      color: color-mix(in srgb, var(--yellow) 72%, var(--text-main));
-    }
-    .prize-stock {
-      font-size: 12px;
-      color: var(--text-sec);
-      margin-left: 8px;
-      flex-shrink: 0;
-    }
-    .prize-item.empty { opacity: 0.4; }
-    .prize-item.empty .prize-stock { color: var(--error); }
-
-    /* Animations */
-    @keyframes slotPulse {
-      from { border-color: var(--surface-variant); }
-      to { border-color: var(--primary); }
-    }
-    @keyframes marqueeMove {
-      from { transform: translateX(0); }
-      to { transform: translateX(-100%); }
-    }
-    @keyframes sparklePulse {
-      from { transform: scale(1); filter: brightness(1); }
-      to { transform: scale(1.08); filter: brightness(1.15); }
-    }
-
-    @media (max-width: 480px) {
-      body {
-        display: block;
-        place-items: initial;
-        padding: 0;
-        background: var(--surface-container);
-      }
-      .container {
-        min-height: 100vh;
-        min-height: 100dvh;
-        border-radius: 0;
-        border-left: 0;
-        border-right: 0;
-        border-bottom: 0;
-        box-shadow: none;
-        padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
-      }
-      .panel { padding: 16px; }
-      .card { padding: 12px; }
-      .fake-marquee { font-size: 13px; }
-      .prize-item { padding: 9px 10px; }
-      .prize-name { max-width: 140px; }
-      .wheel-label {
-        font-size: 15px;
-      }
-    }
-
-    body.is-embedded {
-      display: block;
-      padding: 0;
-      background: var(--surface-container);
-    }
-    body.is-embedded .container {
-      max-width: 480px;
-      min-height: 100vh;
-      min-height: 100dvh;
-      margin: 0 auto;
-      border-radius: 0;
-      border-left: 0;
-      border-right: 0;
-      border-bottom: 0;
-      box-shadow: none;
-      padding-top: calc(16px + env(safe-area-inset-top));
-      padding-bottom: calc(16px + env(safe-area-inset-bottom));
-    }
+    .small { font-size: 13px; color: var(--muted); }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    ul { margin: 8px 0 0; padding-left: 18px; }
   </style>
 </head>
 <body>
-  <main class="container">
-    <div class="header-area">
-      <div class="fake-marquee"><span id="marqueeText">🚀 載入歡呼快訊中...</span></div>
-      <h1>🎁 【豪禮抽獎】Lv.1 回饋抽</h1>
-      <p class="sub">16 週檔期．總計 368,000 抽．保底抽出 100 鑽</p>
-    </div>
-
-    <!-- 遊戲分頁 (取消扭蛋) -->
-    <div class="tabs" id="tabs">
-      <button class="tab-btn active" data-tab="slot">🎰 經典拉霸</button>
-      <button class="tab-btn" data-tab="wheel">🎡 幸運轉盤</button>
-    </div>
-
-    <!-- 頁籤內容: 拉霸 -->
-    <section class="panel active" id="panel-slot">
-      <div class="reels">
-        <div class="reel" id="reel-1">-</div>
-        <div class="reel" id="reel-2">-</div>
-        <div class="reel" id="reel-3">-</div>
-      </div>
-      <button class="draw-btn" id="slotDrawBtn">消耗 1 次免費抽獎</button>
+  <main class="app">
+    <section class="card">
+      <h1>💎 全站搶鑽大戰：千萬鑽石免費送</h1>
+      <p>專案負責人：Abby｜活動對象：全站用戶（核心目標 13 萬名 Lv.0 潛在付費用戶）</p>
+      <p>活動週期：即日起至 10,000,000 鑽石領完為止（預估 18～22 天）</p>
+      <div class="marquee"><span id="marquee">載入全站即時領取快訊中...</span></div>
     </section>
 
-    <!-- 頁籤內容: 轉盤 -->
-    <section class="panel" id="panel-wheel">
-      <div class="wheel-wrap">
-        <div class="wheel-pointer"></div>
-        <div class="wheel" id="wheel">
-          <div class="wheel-labels" id="wheelLabels"></div>
-          <button class="wheel-center" id="wheelGo">GO</button>
+    <section class="grid">
+      <div class="card">
+        <h2>全站真實總池（Global Real-time Pool）</h2>
+        <div class="kpi">
+          <div class="item"><div class="label">總池剩餘鑽石</div><div class="value" id="poolRemain">10,000,000</div></div>
+          <div class="item"><div class="label">累積已扣除</div><div class="value" id="poolSpent">0</div></div>
+          <div class="item"><div class="label">Lv.0 鑽石寶箱</div><div class="value" id="chest">0</div></div>
+          <div class="item"><div class="label">寶箱清空倒數（每週日）</div><div class="value" id="countdown">--:--:--</div></div>
         </div>
+        <p class="small">扣除時機：僅在 <span class="ok">Lv.1+ 實抽中獎</span> 或 <span class="ok">Lv.0 升級後提領</span> 才會扣總池。</p>
+      </div>
+
+      <div class="card">
+        <h2>雙軌抽獎制度（Dual-Track）</h2>
+        <div class="role-tabs">
+          <button class="role-btn active" data-role="lv0">Lv.0 試抽模式</button>
+          <button class="role-btn" data-role="lv1">Lv.1+ 實抽模式</button>
+        </div>
+
+        <div id="panel-lv0" class="panel active">
+          <p>每日免費試抽一次，中獎將封存至寶箱；需升級 Lv.1 才可一鍵提領。</p>
+          <p class="small">7 天保底：前 6 天未中，第 7 天保底 50 鑽。</p>
+          <button class="cta" id="drawLv0">Lv.0 試抽一次</button>
+        </div>
+        <div id="panel-lv1" class="panel">
+          <p>每日免費實抽一次，中獎鑽石即時入帳並扣總池。</p>
+          <p class="small">連 3 天落空者，第 4 天保底觸發 200 鑽以上。</p>
+          <button class="cta" id="drawLv1">Lv.1+ 實抽一次</button>
+        </div>
+        <p id="result" style="margin-top:12px; font-weight:700;">請選擇身分並開始抽獎。</p>
       </div>
     </section>
 
-    <!-- 資訊儀表板 -->
-    <div class="dashboard">
-      <!-- 開獎結果與歷史 -->
-      <div class="card">
-        <div class="card-title" id="drawCount">目前總抽數：0 抽</div>
-        <div class="result-text" id="resultBox">
-          <span class="text-sec">請選擇上方遊戲並點擊抽獎...</span>
-        </div>
-        <hr style="border:0; border-top:1px solid var(--surface-variant); margin: 16px 0;">
-        <div style="font-size: 14px; color: var(--text-sec); margin-bottom: 8px;">最近抽獎紀錄：</div>
-        <ul class="history-list" id="historyList">
-          <li>尚無紀錄</li>
-        </ul>
-      </div>
+    <section class="card">
+      <h2>獎項配額與機率規劃（10,000,000 鑽）</h2>
+      <table>
+        <thead><tr><th>獎項</th><th>配額</th><th>總鑽石</th><th>體感機率</th></tr></thead>
+        <tbody id="prizeTable"></tbody>
+      </table>
+    </section>
 
-      <!-- 獎池剩餘數量 -->
-      <div class="card">
-        <div class="card-title">💎 獎池剩餘數量 (16週配置)</div>
-        <ol class="prize-list" id="prizeList">
-          <!-- JS 動態生成 -->
-        </ol>
-      </div>
-    </div>
+    <section class="card">
+      <h2>活動目標與時程</h2>
+      <ul>
+        <li>KPI：Lv.0 轉化率提升 10% 以上、提升 Lv.1+ 用戶日活躍度。</li>
+        <li>爆發期（第 1 週）：預計消耗 250 萬鑽。</li>
+        <li>結算期（第 2 週）：預計消耗 400 萬鑽。</li>
+        <li>枯竭期（第 3 週）：預計消耗 350 萬鑽，觸發 FOMO 提領通知。</li>
+      </ul>
+    </section>
   </main>
 
   <script>
-    // 總抽數 368,000
-    const TOTAL_DRAWS = 368000;
-    
-    // 基礎獎池設定
-    const prizePool =[
-      { tier: 'SSS', label: 'iPhone 16', stock: 1, initProb: 1 / TOTAL_DRAWS, win: true },
-      { tier: 'SS', label: 'PS5', stock: 1, initProb: 1 / TOTAL_DRAWS, win: true },
-      { tier: 'S', label: 'Switch 2', stock: 1, initProb: 1 / TOTAL_DRAWS, win: true },
-      { tier: '稀有度 1', label: '看到爽 15min', stock: 368, initProb: 368 / TOTAL_DRAWS, win: true },
-      { tier: '稀有度 2', label: '看到爽 10min', stock: 736, initProb: 736 / TOTAL_DRAWS, win: true },
-      { tier: '稀有度 3', label: '1,000 鑽', stock: 1104, initProb: 1104 / TOTAL_DRAWS, win: true },
-      { tier: '稀有度 4', label: '看到爽 5min', stock: 1472, initProb: 1472 / TOTAL_DRAWS, win: true },
-      { tier: '稀有度 5', label: '500 鑽', stock: 1840, initProb: 1840 / TOTAL_DRAWS, win: true },
-      { tier: '稀有度 6', label: '100 鑽', stock: 49680, initProb: 49680 / TOTAL_DRAWS, win: true }
+    const prizes = [
+      { diamond: 10000, quota: 50, odds: '0.01%' },
+      { diamond: 5000, quota: 200, odds: '0.05%' },
+      { diamond: 3000, quota: 1000, odds: '0.5%' },
+      { diamond: 1000, quota: 1500, odds: '1%' },
+      { diamond: 500, quota: 3000, odds: '5%' },
+      { diamond: 200, quota: 5000, odds: '10%' },
+      { diamond: 100, quota: 10000, odds: '20%' },
+      { diamond: 50, quota: 10000, odds: '30%' }
     ];
 
-    // 計算總中獎機率，並加入未中獎補齊 100%
-    const totalWinProb = prizePool.reduce((acc, p) => acc + p.initProb, 0);
-    prizePool.push({ tier: '-', label: '銘謝惠顧', stock: '∞', initProb: 1 - totalWinProb, win: false });
+    const totalPool = 10000000;
+    let spent = 0;
+    let chest = 0;
+    let lv0CycleMiss = 0;
+    let lv1Miss = 0;
 
-    // 建立可動態扣減庫存的 Map
-    const currentStock = new Map(prizePool.map(p =>[p.label, p.stock]));
+    const poolRemain = document.getElementById('poolRemain');
+    const poolSpent = document.getElementById('poolSpent');
+    const chestEl = document.getElementById('chest');
+    const result = document.getElementById('result');
 
-    // DOM 元素
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const panels = {
-      slot: document.getElementById('panel-slot'),
-      wheel: document.getElementById('panel-wheel')
-    };
-    const reels =[document.getElementById('reel-1'), document.getElementById('reel-2'), document.getElementById('reel-3')];
-    const wheel = document.getElementById('wheel');
-    const wheelGo = document.getElementById('wheelGo');
-    const wheelLabels = document.getElementById('wheelLabels');
-    const slotDrawBtn = document.getElementById('slotDrawBtn');
-    
-    const drawCountEl = document.getElementById('drawCount');
-    const resultBox = document.getElementById('resultBox');
-    const historyList = document.getElementById('historyList');
-    const prizeList = document.getElementById('prizeList');
+    function format(n) { return n.toLocaleString('zh-Hant'); }
 
-    let activeTab = 'slot';
-    let drawCount = 0;
-    let spinning = false;
-    let wheelRotate = 0;
-    const historyLog = [];
-    const slotSymbols =['💎', '🎁', '📱', '🎮', '🌟', '❌'];
-    const marqueeText = document.getElementById('marqueeText');
-    const wheelOrder = [
-      'iPhone 16',
-      '100 鑽',
-      '看到爽 5min',
-      '銘謝惠顧',
-      'PS5',
-      '500 鑽',
-      '看到爽 10min',
-      '1,000 鑽',
-      'Switch 2',
-      '看到爽 15min'
-    ];
-    const wheelSegments = wheelOrder
-      .map(label => prizePool.find(prize => prize.label === label))
-      .filter(Boolean);
-
-    const isEmbeddedView = window.self !== window.top;
-    if (isEmbeddedView) {
-      document.body.classList.add('is-embedded');
-    }
-
-    function randomAccount() {
-      const chars = 'abcdefghijklmnopqrstuvwxyz';
-      const letters = Array.from({ length: 3 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-      const numbers = String(Math.floor(Math.random() * 9000) + 1000);
-      return `${letters}${numbers}`;
-    }
-
-    function getPrizeEmoji(label) {
-      if (label.includes('iPhone')) return '📱';
-      if (label.includes('PS5') || label.includes('Switch')) return '🎮';
-      if (label.includes('看到爽')) return '👀';
-      if (label.includes('鑽')) return '💎';
-      return '🎁';
-    }
-
-    function buildFakeCelebrationFeed() {
-      const winPrizes = prizePool.filter(p => p.win);
-      const feed = [];
-      for (let i = 0; i < 24; i++) {
-        const prize = winPrizes[Math.floor(Math.random() * winPrizes.length)];
-        feed.push(`恭喜 ${randomAccount()} 抽中 ${prize.label} ${getPrizeEmoji(prize.label)}！`);
-      }
-      return feed;
-    }
-
-    function startMarqueeFeed() {
-      const feed = buildFakeCelebrationFeed();
-      const separator = '　✨　';
-      marqueeText.textContent = `${feed.join(separator)}${separator}${feed.join(separator)}`;
-    }
-
-    // 依權重隨機抽選
-    function randomDraw(pool) {
-      const rand = Math.random();
-      let cumulative = 0;
-      for (const item of pool) {
-        cumulative += item.probability;
-        if (rand <= cumulative) return item;
-      }
-      return pool[pool.length - 1]; // Fallback
-    }
-
-    // 動態獲取當前獎池機率 (無庫存的機率轉移)
-    function getDynamicPool() {
-      let shiftedLoseProb = 0;
-      const dynamicPool = prizePool.map(item => {
-        if (!item.win) return { ...item, probability: item.initProb };
-        
-        const remain = currentStock.get(item.label);
-        if (remain > 0) {
-          return { ...item, probability: item.initProb };
-        } else {
-          shiftedLoseProb += item.initProb; 
-          return null;
+    function weightedDraw(min = 0) {
+      const filtered = prizes.filter(p => p.diamond >= min && p.quota > 0);
+      const totalW = filtered.reduce((s, p) => s + parseFloat(p.odds), 0);
+      const r = Math.random() * (totalW + 33.44);
+      if (r > totalW) return 0;
+      let c = 0;
+      for (const p of filtered) {
+        c += parseFloat(p.odds);
+        if (r <= c) {
+          p.quota -= 1;
+          return p.diamond;
         }
-      }).filter(Boolean);
-
-      const loseItem = dynamicPool.find(i => !i.win);
-      if (loseItem) loseItem.probability += shiftedLoseProb;
-      
-      return dynamicPool;
-    }
-
-    // 渲染轉盤文字 (採用放射狀排版)
-    function renderWheel() {
-      const slice = 360 / wheelSegments.length;
-      const wheelBg = wheelSegments.map((item, index) => {
-        const startDeg = index * slice;
-        const endDeg = startDeg + slice;
-        let color = 'color-mix(in srgb, var(--surface-soft) 82%, white 18%)';
-        if (item.label === '銘謝惠顧') color = '#000000';
-        else if (item.label.includes('鑽')) color = 'color-mix(in srgb, var(--blue) 76%, white 24%)';
-        else if (item.label.includes('看到爽')) color = 'color-mix(in srgb, var(--success) 72%, black 18%)';
-        else if (item.tier === 'SSS') color = 'color-mix(in srgb, var(--yellow) 78%, white 22%)';
-        else if (item.tier === 'SS') color = 'color-mix(in srgb, var(--pink) 78%, white 22%)';
-        else if (item.tier === 'S') color = 'color-mix(in srgb, var(--purple) 76%, white 24%)';
-        return `${color} ${startDeg}deg ${endDeg}deg`;
-      }).join(', ');
-      wheel.style.setProperty('--wheel-bg', `conic-gradient(${wheelBg})`);
-
-      wheelLabels.innerHTML = wheelSegments.map((item, index) => {
-        // 設定各自扇形的中心點角度
-        const angle = index * slice + slice / 2;
-        // 原本截斷文字，現在將全名直接顯示，靠外層 CSS `white-space: nowrap` + `align-items` 控制
-        const loseClass = item.label === '銘謝惠顧' ? 'lose' : '';
-        return `<span class="wheel-label ${loseClass}" style="--angle:${angle}deg">${item.label}</span>`;
-      }).join('');
-    }
-
-    // 渲染獎池剩餘數量 Dashboard
-    function renderPrizeList() {
-      prizeList.innerHTML = prizePool.filter(p => p.win).map(item => {
-        const remain = currentStock.get(item.label);
-        const isEmpty = remain === 0;
-        const topPrizeRank = ({ SSS: 1, SS: 2, S: 3 })[item.tier] || 0;
-        const topPrizeClass = topPrizeRank ? `top-prize top-prize-${topPrizeRank}` : '';
-        const topPrizeBadge = topPrizeRank ? `<span class="sparkle-badge">✨TOP ${topPrizeRank}</span>` : '';
-        return `
-          <li class="prize-item ${topPrizeClass} ${isEmpty ? 'empty' : ''}">
-            <span class="prize-name-wrap">
-              ${topPrizeBadge}
-              <span class="prize-name">${item.label}</span>
-            </span>
-            <span class="prize-stock">${isEmpty ? '已發完' : `剩餘：${remain}`}</span>
-          </li>
-        `;
-      }).join('');
-    }
-
-    // 更新紀錄與結果
-    function handleResult(prize) {
-      if (prize.win && currentStock.get(prize.label) > 0) {
-        currentStock.set(prize.label, currentStock.get(prize.label) - 1);
       }
-      
-      renderPrizeList();
-      
-      resultBox.innerHTML = `
-        <span class="${prize.win ? 'win' : 'lose'}">${prize.win ? '🎉 恭喜中獎！' : '🥺 銘謝惠顧'}</span>
-        <br>
-        <span style="font-size:14px; color:var(--text-main);">獲得：${prize.label}</span>
-      `;
-
-      historyLog.unshift(`[${activeTab === 'slot' ? '拉霸' : '轉盤'}] ${prize.win ? '🟢' : '🔴'} ${prize.label}`);
-      if (historyLog.length > 5) historyLog.pop();
-      historyList.innerHTML = historyLog.map(log => `<li>${log}</li>`).join('');
+      return 0;
     }
 
-    // 切換分頁
-    function switchTab(tabName) {
-      if (spinning) return;
-      activeTab = tabName;
-      tabBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
-      Object.entries(panels).forEach(([name, panel]) => panel.classList.toggle('active', name === tabName));
+    function updatePool() {
+      poolRemain.textContent = format(Math.max(0, totalPool - spent));
+      poolSpent.textContent = format(spent);
+      chestEl.textContent = format(chest);
     }
 
-    // 動畫 - 拉霸
-    function animSlot(prize) {
-      reels.forEach(r => r.classList.add('spin'));
-      const intervals = reels.map((r, i) => setInterval(() => {
-        r.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
-      }, 100));
+    document.getElementById('drawLv0').addEventListener('click', () => {
+      let win = weightedDraw();
+      lv0CycleMiss += win === 0 ? 1 : 0;
+      if (lv0CycleMiss >= 6 && win === 0) {
+        win = 50;
+        lv0CycleMiss = 0;
+      }
+      if (win > 0) {
+        chest += win;
+        result.textContent = `🎉 Lv.0 試抽中 ${win} 鑽，已存入寶箱（未扣總池）`;
+      } else {
+        result.textContent = '🥺 Lv.0 本次未中獎，持續累積保底進度。';
+      }
+      updatePool();
+    });
 
-      reels.forEach((r, i) => {
-        setTimeout(() => {
-          clearInterval(intervals[i]);
-          r.classList.remove('spin');
-          r.textContent = prize.win ? (i === 2 ? '🎉' : '🎁') : '❌';
-          if(i===2) r.textContent = prize.label.substring(0,4);
-        }, 800 + i * 400);
+    document.getElementById('drawLv1').addEventListener('click', () => {
+      let win = weightedDraw(lv1Miss >= 3 ? 200 : 0);
+      if (win === 0) lv1Miss += 1; else lv1Miss = 0;
+      if (win > 0) {
+        spent += win;
+        result.textContent = `💰 Lv.1+ 實抽中 ${win} 鑽，已即時入帳並扣除總池。`;
+      } else {
+        result.textContent = '😶 Lv.1+ 本次銘謝惠顧。';
+      }
+      updatePool();
+    });
+
+    const tableBody = document.getElementById('prizeTable');
+    function renderTable() {
+      tableBody.innerHTML = prizes.map(p => `
+        <tr><td>${format(p.diamond)} 鑽</td><td>${format(p.quota)} 份</td><td>${format(p.diamond * p.quota)}</td><td>${p.odds}</td></tr>
+      `).join('') + '<tr><td>銘謝惠顧</td><td>—</td><td>—</td><td>剩餘機率</td></tr>';
+    }
+
+    function updateCountdown() {
+      const now = new Date();
+      const end = new Date(now);
+      end.setUTCDate(now.getUTCDate() + ((7 - now.getUTCDay()) % 7 || 7));
+      end.setUTCHours(0,0,0,0);
+      const sec = Math.max(0, Math.floor((end - now) / 1000));
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      document.getElementById('countdown').textContent = `${h}:${m}:${s}`;
+    }
+
+    const feeds = ['uid7821 升級 Lv.1 提領 3,000 鑽', 'uid9902 Lv.1+ 抽中 1,000 鑽', 'uid4450 實抽中 500 鑽', 'uid6619 升級提領 10,000 鑽'];
+    document.getElementById('marquee').textContent = feeds.join(' ✦ ') + ' ✦ ' + feeds.join(' ✦ ');
+
+    document.querySelectorAll('.role-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`panel-${btn.dataset.role}`).classList.add('active');
       });
-      return 1800;
-    }
+    });
 
-    // 動畫 - 轉盤
-    function animWheel(prize) {
-      const idx = wheelSegments.findIndex(p => p.label === prize.label);
-      const slice = 360 / wheelSegments.length;
-      const targetDeg = 360 - (idx * slice + slice / 2);
-      wheelRotate += (360 * 6) + targetDeg; 
-      wheel.style.transform = `rotate(${wheelRotate}deg)`;
-      return 4000;
-    }
-
-    // 執行抽獎
-    function triggerDraw() {
-      if (spinning) return;
-      spinning = true;
-      slotDrawBtn.disabled = wheelGo.disabled = true;
-      
-      const dynamicPool = getDynamicPool();
-      const prize = randomDraw(dynamicPool);
-      
-      let delay = 0;
-      if (activeTab === 'slot') delay = animSlot(prize);
-      else if (activeTab === 'wheel') delay = animWheel(prize);
-
-      setTimeout(() => {
-        drawCount++;
-        drawCountEl.textContent = `目前總抽數：${drawCount} 抽`;
-        handleResult(prize);
-        
-        slotDrawBtn.disabled = wheelGo.disabled = false;
-        spinning = false;
-      }, delay);
-    }
-
-    // 綁定事件
-    tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
-    slotDrawBtn.addEventListener('click', triggerDraw);
-    wheelGo.addEventListener('click', triggerDraw);
-
-    // 初始化
-    startMarqueeFeed();
-    renderWheel();
-    renderPrizeList();
+    renderTable();
+    updatePool();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
   </script>
 </body>
 </html>
