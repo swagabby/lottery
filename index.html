@@ -86,10 +86,9 @@
     .pool-main.danger { color:var(--danger); }
     .pool-side { font-size:13px; color:var(--text-3); }
     .pool-side b { color:var(--text-2); font-weight:600; }
-    .pool-bar-track { background:var(--divider); border-radius:var(--r-full); height:6px; overflow:hidden; }
-    .pool-bar-fill { height:100%; border-radius:var(--r-full); transition:width .8s ease, background .5s ease; background:linear-gradient(90deg,var(--primary),var(--gold)); }
-    .pool-bar-fill.warn   { background:linear-gradient(90deg,var(--warn),#ffb347); }
-    .pool-bar-fill.danger { background:linear-gradient(90deg,var(--danger),#ff8080); }
+    .pool-bar-track { background: linear-gradient(90deg, #FF4D4D 0%, #FF8C42 10%, #FFD54D 22%, #00D2BE 30%, #00D2BE 100%); border-radius:var(--r-full); height:6px; overflow:hidden; position:relative; }
+    .pool-bar-fill { height:100%; border-radius:var(--r-full); transition:width .8s ease; background: var(--surface-card); position:absolute; right:0; top:0; }
+    .pool-bar-fill.warn, .pool-bar-fill.danger { background: var(--surface-card); }
 
     /* ── Modal ── */
     .modal-overlay { display:none; position:fixed; inset:0; z-index:999; background:rgba(0,0,0,.7); align-items:flex-end; justify-content:center; }
@@ -287,6 +286,21 @@
     </div>
   </div>
 
+  <!-- 🛠 Dev Simulator -->
+  <div style="position:fixed;bottom:16px;right:16px;z-index:8888;background:#1a1a1a;border:1px solid #555;border-radius:12px;padding:12px 14px;width:210px;box-shadow:0 4px 20px rgba(0,0,0,.5);">
+    <div style="font-size:11px;font-weight:700;color:#9B9B9B;letter-spacing:.08em;margin-bottom:8px;">🛠 模擬剩餘鑽石</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+      <button onclick="simPool(2000000)" style="flex:1;background:#2a2a2a;border:1px solid #555;color:#C8C8C8;border-radius:6px;padding:5px 4px;font-size:11px;cursor:pointer;">20%</button>
+      <button onclick="simPool(1000000)" style="flex:1;background:#2a2a2a;border:1px solid #555;color:#C8C8C8;border-radius:6px;padding:5px 4px;font-size:11px;cursor:pointer;">10%</button>
+      <button onclick="simPool(500000)"  style="flex:1;background:#2a2a2a;border:1px solid #555;color:#C8C8C8;border-radius:6px;padding:5px 4px;font-size:11px;cursor:pointer;">5%</button>
+      <button onclick="simPool(10000000)" style="flex:1;background:#2a2a2a;border:1px solid #555;color:#00D2BE;border-radius:6px;padding:5px 4px;font-size:11px;cursor:pointer;">重置</button>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <input id="simInput" type="number" min="0" max="10000000" placeholder="自訂數量" style="flex:1;background:#111;border:1px solid #444;border-radius:6px;padding:5px 8px;color:#fff;font-size:12px;width:0;">
+      <button onclick="simPool(+document.getElementById('simInput').value)" style="background:#00D2BE;border:none;color:#191919;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;">套用</button>
+    </div>
+  </div>
+
   <!-- Prize Modal -->
   <div class="modal-overlay" id="prizeModal" onclick="closePrizeModal()">
     <div class="modal-box" onclick="event.stopPropagation()">
@@ -427,10 +441,11 @@
     function updateAll() {
       const remain = Math.max(0, TOTAL-spent);
       const pct = (remain/TOTAL*100).toFixed(1)+'%';
+      const spentPct = (spent / TOTAL * 100).toFixed(1) + '%';
       ['lv0','lv1'].forEach(id=>{
         document.getElementById(`pool-remain-${id}`).textContent = fmt(remain);
         document.getElementById(`pool-spent-${id}`).textContent  = fmt(spent);
-        document.getElementById(`pool-bar-${id}`).style.width    = pct;
+        document.getElementById(`pool-bar-${id}`).style.width    = spentPct;
       });
       document.getElementById('chest-val').textContent   = fmt(chest);
       document.getElementById('earned-val').textContent  = fmt(earned);
@@ -524,6 +539,14 @@
 
     function openPrizeModal()  { document.getElementById('prizeModal').classList.add('open'); }
     function closePrizeModal() { document.getElementById('prizeModal').classList.remove('open'); }
+
+    /* ── Dev simulator ── */
+    function simPool(remain) {
+      if (isNaN(remain) || remain < 0) return;
+      remain = Math.min(remain, TOTAL);
+      spent = TOTAL - remain;
+      updateAll();
+    }
 
     /* ── Countdown ── */
     function tick() {
