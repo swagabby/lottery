@@ -17,337 +17,250 @@
       --text-2:       #C8C8C8;
       --text-3:       #9B9B9B;
       --gold:         #FFD54D;
+      --warn:         #FF8C42;
+      --danger:       #FF4D4D;
       --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-full: 1000px;
       --font: "PingFang TC", "Noto Sans TC", sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--surface);
-      color: var(--text-1);
-      font-family: var(--font);
-      font-size: 16px;
-      line-height: 1.6;
-      overflow-x: hidden;
+    body { background: var(--surface); color: var(--text-1); font-family: var(--font); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+
+    /* ── FOMO Banner ── */
+    .fomo-banner {
+      display: none;
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .03em;
+      animation: pulse 2s ease-in-out infinite;
     }
+    .fomo-banner.warn   { background: rgba(255,140,66,.15); border-bottom: 1px solid rgba(255,140,66,.4); color: var(--warn); }
+    .fomo-banner.danger { background: rgba(255,77,77,.15);  border-bottom: 1px solid rgba(255,77,77,.4);  color: var(--danger); }
+    .fomo-banner.show   { display: block; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.65} }
 
     /* ── Top Nav ── */
-    .top-nav {
-      position: sticky; top: 0; z-index: 100;
-      background: var(--surface-card);
-      border-bottom: 1px solid var(--divider);
-      display: flex; padding: 0 16px;
-    }
-    .nav-tab {
-      flex: 1; background: none; border: none;
-      border-bottom: 3px solid transparent;
-      padding: 16px 8px;
-      font-family: var(--font); font-size: 16px; font-weight: 800;
-      color: var(--text-3); cursor: pointer;
-      transition: color .2s, border-color .2s;
-    }
-    .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-    .nav-tab.active.gold-tab { color: var(--gold); border-bottom-color: var(--gold); }
-    .nav-tab:hover:not(.active) { color: var(--text-2); }
+    .top-nav { position: sticky; top: 0; z-index: 100; background: var(--surface-card); border-bottom: 1px solid var(--divider); display: flex; padding: 0 16px; }
+    .nav-tab { flex:1; background:none; border:none; border-bottom:3px solid transparent; padding:16px 8px; font-family:var(--font); font-size:16px; font-weight:800; color:var(--text-3); cursor:pointer; transition:color .2s,border-color .2s; }
+    .nav-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+    .nav-tab.active.gold-tab { color:var(--gold); border-bottom-color:var(--gold); }
+    .nav-tab:hover:not(.active) { color:var(--text-2); }
 
     /* ── Pages ── */
-    .page { display: none; }
-    .page.active { display: block; animation: fadein .25s ease; }
+    .page { display:none; }
+    .page.active { display:block; animation:fadein .25s ease; }
     @keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
 
     /* ── Hero ── */
-    .hero {
-      position: relative; padding: 32px 16px 28px;
-      text-align: center; overflow: hidden;
-    }
-    .hero.lv0 { background: linear-gradient(160deg,#091716,#0d2420 60%,#0a1a18); border-bottom: 1px solid rgba(0,210,190,.2); }
-    .hero.lv1 { background: linear-gradient(160deg,#1a1500,#201b00 60%,#141000); border-bottom: 1px solid rgba(255,213,77,.2); }
+    .hero { position:relative; padding:32px 16px 28px; text-align:center; overflow:hidden; }
+    .hero.lv0 { background:linear-gradient(160deg,#091716,#0d2420 60%,#0a1a18); border-bottom:1px solid rgba(0,210,190,.2); }
+    .hero.lv1 { background:linear-gradient(160deg,#1a1500,#201b00 60%,#141000); border-bottom:1px solid rgba(255,213,77,.2); }
     .hero::before { content:''; position:absolute; inset:0; pointer-events:none; }
-    .hero.lv0::before { background: radial-gradient(ellipse 70% 50% at 50% -10%,rgba(0,210,190,.18),transparent 65%); }
-    .hero.lv1::before { background: radial-gradient(ellipse 70% 50% at 50% -10%,rgba(255,213,77,.15),transparent 65%); }
-    .hero-badge {
-      display: inline-block; border-radius: var(--r-full);
-      padding: 3px 14px; font-size: 11px; font-weight: 700;
-      letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px;
-    }
-    .lv0 .hero-badge { border: 1px solid var(--primary); color: var(--primary); }
-    .lv1 .hero-badge { border: 1px solid var(--gold); color: var(--gold); }
-    .hero h1 { font-size: clamp(28px,5vw,44px); font-weight: 900; line-height: 1.15; margin-bottom: 8px; letter-spacing: -.01em; }
-    .hero-sub { font-size: 14px; color: var(--text-2); font-weight: 500; }
+    .hero.lv0::before { background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(0,210,190,.18),transparent 65%); }
+    .hero.lv1::before { background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(255,213,77,.15),transparent 65%); }
+    .hero-badge { display:inline-block; border-radius:var(--r-full); padding:3px 14px; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px; }
+    .lv0 .hero-badge { border:1px solid var(--primary); color:var(--primary); }
+    .lv1 .hero-badge { border:1px solid var(--gold); color:var(--gold); }
+    .hero h1 { font-size:clamp(28px,5vw,44px); font-weight:900; line-height:1.15; margin-bottom:8px; letter-spacing:-.01em; }
+    .hero-sub { font-size:14px; color:var(--text-2); font-weight:500; }
 
     /* ── Marquee ── */
-    .marquee-strip {
-      background: rgba(0,210,190,.07);
-      border-top: 1px solid rgba(0,210,190,.15);
-      border-bottom: 1px solid rgba(0,210,190,.15);
-      padding: 10px 0;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-    .marquee-inner {
-      display: inline-block;
-      font-size: 13px; font-weight: 600; color: var(--primary);
-      animation: scroll 32s linear infinite;
-    }
+    .marquee-strip { background:rgba(0,210,190,.07); border-top:1px solid rgba(0,210,190,.15); border-bottom:1px solid rgba(0,210,190,.15); padding:10px 0; overflow:hidden; white-space:nowrap; }
+    .marquee-inner { display:inline-block; font-size:13px; font-weight:600; color:var(--primary); animation:scroll 32s linear infinite; }
     @keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
-    /* ── Inner layout ── */
-    .inner {
-      max-width: 720px; margin: 0 auto;
-      padding: 20px 16px 40px;
-      display: grid; gap: 14px;
-    }
+    /* ── Inner ── */
+    .inner { max-width:720px; margin:0 auto; padding:20px 16px 40px; display:grid; gap:14px; }
 
     /* ── Pool card ── */
-    .pool-card {
-      background: var(--surface-card);
-      border: 1px solid var(--divider);
-      border-radius: var(--r-lg);
-      padding: 18px 20px;
-    }
-    .pool-card-title {
-      font-size: 13px; color: var(--text-3); margin-bottom: 10px;
-      font-weight: 600; letter-spacing:.04em;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .info-btn {
-      width: 20px; height: 20px;
-      border-radius: 50%;
-      border: 1.5px solid var(--primary);
-      background: none;
-      color: var(--primary);
-      font-size: 11px; font-weight: 900;
-      cursor: pointer;
-      line-height: 1;
-      transition: background .18s, color .18s;
-      flex-shrink: 0;
-    }
-    .info-btn:hover { background: var(--primary); color: var(--on-primary); }
+    .pool-card { background:var(--surface-card); border:1px solid var(--divider); border-radius:var(--r-lg); padding:18px 20px; transition:border-color .5s; }
+    .pool-card.warn-state   { border-color:rgba(255,140,66,.5); }
+    .pool-card.danger-state { border-color:rgba(255,77,77,.5); }
+    .pool-card-title { font-size:13px; color:var(--text-3); margin-bottom:10px; font-weight:600; letter-spacing:.04em; display:flex; align-items:center; justify-content:space-between; }
+    .info-btn { width:20px; height:20px; border-radius:50%; border:1.5px solid var(--primary); background:none; color:var(--primary); font-size:11px; font-weight:900; cursor:pointer; line-height:1; transition:background .18s,color .18s; flex-shrink:0; }
+    .info-btn:hover { background:var(--primary); color:var(--on-primary); }
+    .pool-num-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+    .pool-main { font-size:22px; font-weight:900; color:var(--primary); transition:color .5s; }
+    .pool-main.warn   { color:var(--warn); }
+    .pool-main.danger { color:var(--danger); }
+    .pool-side { font-size:13px; color:var(--text-3); }
+    .pool-side b { color:var(--text-2); font-weight:600; }
+    .pool-bar-track { background:var(--divider); border-radius:var(--r-full); height:6px; overflow:hidden; }
+    .pool-bar-fill { height:100%; border-radius:var(--r-full); transition:width .8s ease, background .5s ease; background:linear-gradient(90deg,var(--primary),var(--gold)); }
+    .pool-bar-fill.warn   { background:linear-gradient(90deg,var(--warn),#ffb347); }
+    .pool-bar-fill.danger { background:linear-gradient(90deg,var(--danger),#ff8080); }
 
     /* ── Modal ── */
-    .modal-overlay {
-      display: none;
-      position: fixed; inset: 0; z-index: 999;
-      background: rgba(0,0,0,.7);
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .modal-overlay.open { display: flex; animation: fadein .2s ease; }
-    .modal-box {
-      background: var(--surface-card);
-      border: 1px solid var(--divider);
-      border-radius: var(--r-lg) var(--r-lg) 0 0;
-      padding: 20px;
-      width: 100%; max-width: 540px;
-      max-height: 80vh; overflow-y: auto;
-      animation: slideup .25s ease;
-    }
+    .modal-overlay { display:none; position:fixed; inset:0; z-index:999; background:rgba(0,0,0,.7); align-items:flex-end; justify-content:center; }
+    .modal-overlay.open { display:flex; animation:fadein .2s ease; }
+    .modal-box { background:var(--surface-card); border:1px solid var(--divider); border-radius:var(--r-lg) var(--r-lg) 0 0; padding:20px; width:100%; max-width:540px; max-height:80vh; overflow-y:auto; animation:slideup .25s ease; }
     @keyframes slideup { from{transform:translateY(40px);opacity:0} to{transform:none;opacity:1} }
-    .modal-header {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 16px; font-weight: 700;
-      margin-bottom: 16px;
-    }
-    .modal-close {
-      background: none; border: none;
-      color: var(--text-3); font-size: 16px;
-      cursor: pointer; padding: 4px 8px;
-      border-radius: var(--r-sm);
-      transition: color .15s;
-    }
-    .modal-close:hover { color: var(--text-1); }
-    .pool-num-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-    .pool-main { font-size: 22px; font-weight: 900; color: var(--primary); }
-    .pool-side { font-size: 13px; color: var(--text-3); }
-    .pool-side b { color: var(--text-2); font-weight: 600; }
-    .pool-bar-track { background: var(--divider); border-radius: var(--r-full); height: 6px; overflow: hidden; }
-    .pool-bar-fill { height: 100%; background: linear-gradient(90deg,var(--primary),var(--gold)); border-radius: var(--r-full); transition: width .8s ease; }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; font-size:16px; font-weight:700; margin-bottom:16px; }
+    .modal-close { background:none; border:none; color:var(--text-3); font-size:16px; cursor:pointer; padding:4px 8px; border-radius:var(--r-sm); transition:color .15s; }
+    .modal-close:hover { color:var(--text-1); }
 
     /* ── Draw section ── */
-    .draw-section {
+    .draw-section { background:var(--surface-card); border:1px solid var(--divider); border-radius:var(--r-lg); padding:20px; }
+    .draw-desc { font-size:14px; color:var(--text-2); margin-bottom:14px; line-height:1.6; }
+
+    /* ── CTA ── */
+    .cta { display:block; width:auto; margin:0 auto; border:0; border-radius:var(--r-full); padding:14px 36px; font-family:var(--font); font-size:16px; font-weight:700; cursor:pointer; transition:opacity .18s,transform .1s; letter-spacing:.03em; }
+    .cta-teal { background:linear-gradient(135deg,#00e5cf,#00b8a8); color:var(--on-primary); box-shadow:0 4px 20px rgba(0,210,190,.45); }
+    .cta-gold  { background:linear-gradient(135deg,#ffe066,#f5b800); color:#1a1500; box-shadow:0 4px 20px rgba(255,213,77,.45); }
+    .cta:hover  { opacity:.86; }
+    .cta:active { transform:scale(.98); }
+
+    /* ── Result ── */
+    .result { margin-top:14px; padding:12px 16px; border-radius:var(--r-md); background:var(--surface); border:1px solid var(--divider); font-size:14px; font-weight:600; color:var(--text-3); min-height:46px; line-height:1.5; transition:border-color .2s,color .2s,background .2s; }
+    .result.win-teal { border-color:var(--primary); color:var(--primary); background:rgba(0,210,190,.07); }
+    .result.win-gold { border-color:var(--gold); color:var(--gold); background:rgba(255,213,77,.06); }
+    .result.miss { color:var(--text-3); }
+    @keyframes pop { 0%{transform:scale(.94);opacity:.4} 65%{transform:scale(1.03)} 100%{transform:scale(1);opacity:1} }
+    .result.animate { animation:pop .35s ease; }
+
+    /* ── Chest card (merged) ── */
+    .chest-card {
       background: var(--surface-card);
       border: 1px solid var(--divider);
       border-radius: var(--r-lg);
       padding: 20px;
+      text-align: center;
     }
-    .draw-desc { font-size: 14px; color: var(--text-2); margin-bottom: 14px; line-height: 1.6; }
+    .chest-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .chest-stat { }
+    .chest-stat-label { font-size: 15px; font-weight: 600; color: var(--text-3); margin-bottom: 8px; }
+    .chest-stat-val { font-size: 32px; font-weight: 900; line-height: 1.2; }
+    .chest-stat-val.gold { color: var(--gold); }
+    .chest-stat-val.countdown { font-size: 16px; font-weight: 800; color: var(--text-1); line-height: 1.8; }
+    .chest-stat-unit { font-size: 12px; color: var(--text-3); margin-top: 4px; }
 
-    /* ── CTA ── */
-    .cta {
-      display: block; width: auto; margin: 0 auto;
-      border: 0; border-radius: var(--r-full);
-      padding: 14px 36px; font-family: var(--font);
-      font-size: 16px; font-weight: 700; cursor: pointer;
-      transition: opacity .18s, transform .1s; letter-spacing: .03em;
-    }
-    .cta-teal {
-      background: linear-gradient(135deg, #00e5cf, #00b8a8);
-      color: var(--on-primary);
-      box-shadow: 0 4px 20px rgba(0,210,190,.45);
-    }
-    .cta-gold {
-      background: linear-gradient(135deg, #ffe066, #f5b800);
-      color: #1a1500;
-      box-shadow: 0 4px 20px rgba(255,213,77,.45);
-    }
-    .cta:hover  { opacity: .86; }
-    .cta:active { transform: scale(.98); }
-
-    /* ── Result ── */
-    .result {
-      margin-top: 14px; padding: 12px 16px;
-      border-radius: var(--r-md);
-      background: var(--surface); border: 1px solid var(--divider);
-      font-size: 14px; font-weight: 600; color: var(--text-3);
-      min-height: 46px; line-height: 1.5;
-      transition: border-color .2s, color .2s, background .2s;
-    }
-    .result.win-teal { border-color: var(--primary); color: var(--primary); background: rgba(0,210,190,.07); }
-    .result.win-gold { border-color: var(--gold);    color: var(--gold);    background: rgba(255,213,77,.06); }
-    .result.miss     { color: var(--text-3); }
-    @keyframes pop { 0%{transform:scale(.94);opacity:.4} 65%{transform:scale(1.03)} 100%{transform:scale(1);opacity:1} }
-    .result.animate  { animation: pop .35s ease; }
-
-    /* ── Info grid (chest) ── */
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .info-card { background: var(--surface-card); border: 1px solid var(--divider); border-radius: var(--r-md); padding: 16px; text-align: center; }
-    .info-label { font-size: 15px; font-weight: 600; color: var(--text-3); margin-bottom: 10px; }
-    .info-val   { font-size: 32px; font-weight: 900; line-height: 1.2; }
-    .info-val.gold { color: var(--gold); }
-    .info-val.countdown { font-size: 16px; font-weight: 800; color: var(--text-1); line-height: 1.8; }
-
-    /* ── Upgrade banner ── */
-    .upgrade-banner {
-      display: none;
-      background: linear-gradient(135deg,rgba(255,213,77,.12),rgba(255,213,77,.05));
-      border: 1px solid rgba(255,213,77,.35);
-      border-radius: var(--r-lg);
-      padding: 18px 20px; text-align: center;
-    }
-    .upgrade-banner.show { display: block; animation: fadein .3s ease; }
-    .upgrade-banner p { font-size: 14px; color: var(--text-2); margin-bottom: 14px; }
-    .chest-amt { font-size: 28px; font-weight: 900; color: var(--gold); margin-bottom: 4px; line-height: 1; }
-    .chest-lbl { font-size: 12px; color: var(--text-3); margin-bottom: 14px; }
+    /* upgrade section inside chest card — hidden until chest > 0 */
+    .chest-upgrade { display: none; border-top: 1px solid var(--divider); padding-top: 16px; }
+    .chest-upgrade.show { display: block; animation: fadein .3s ease; }
+    .chest-upgrade-lbl { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
 
     /* ── Earned ── */
-    .earned-card { background: var(--surface-card); border: 1px solid var(--divider); border-radius: var(--r-lg); padding: 20px; text-align: center; }
-    .earned-label { font-size: 13px; color: var(--text-3); margin-bottom: 8px; }
-    .earned-val   { font-size: clamp(32px,7vw,52px); font-weight: 900; color: var(--gold); letter-spacing:-.02em; line-height:1; }
-    .earned-unit  { font-size: 14px; color: var(--text-2); margin-top: 6px; }
+    .earned-card { background:var(--surface-card); border:1px solid var(--divider); border-radius:var(--r-lg); padding:20px; text-align:center; }
+    .earned-label { font-size:13px; color:var(--text-3); margin-bottom:8px; }
+    .earned-val { font-size:clamp(32px,7vw,52px); font-weight:900; color:var(--gold); letter-spacing:-.02em; line-height:1; }
+    .earned-unit { font-size:14px; color:var(--text-2); margin-top:6px; }
 
     /* ── Prize list ── */
-    .section-title { font-size: 15px; font-weight: 700; color: var(--text-2); margin-bottom: 10px; }
-    .prize-list { display: grid; gap: 8px; }
-    .prize-row {
-      display: flex; align-items: center; gap: 12px;
-      background: var(--surface); border: 1px solid var(--divider);
-      border-radius: var(--r-md); padding: 10px 14px;
-      transition: border-color .2s;
+    .prize-list { display:grid; gap:8px; }
+    .prize-row { display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--divider); border-radius:var(--r-md); padding:10px 14px; transition:border-color .2s; }
+    .prize-row:hover { border-color:rgba(0,210,190,.3); }
+    .prize-row.top { border-color:rgba(255,213,77,.2); background:rgba(255,213,77,.025); }
+    .prize-em { font-size:18px; }
+    .prize-d { font-size:16px; font-weight:900; flex:1; }
+    .prize-row.top .prize-d { color:var(--gold); }
+    .prize-badge { font-size:11px; font-weight:700; padding:3px 9px; border-radius:var(--r-full); background:rgba(0,210,190,.12); color:var(--primary); white-space:nowrap; letter-spacing:.02em; }
+    .prize-row.top .prize-badge { background:rgba(255,213,77,.15); color:var(--gold); }
+    .prize-miss-row { color:var(--text-3); font-size:13px; }
+
+    /* ── Win animation overlay ── */
+    #win-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      pointer-events: none;
+      overflow: hidden;
     }
-    .prize-row:hover { border-color: rgba(0,210,190,.3); }
-    .prize-row.top  { border-color: rgba(255,213,77,.2); background: rgba(255,213,77,.025); }
-    .prize-em { font-size: 18px; }
-    .prize-d  { font-size: 16px; font-weight: 900; flex: 1; }
-    .prize-row.top .prize-d { color: var(--gold); }
-    .prize-badge {
-      font-size: 11px; font-weight: 700;
-      padding: 3px 9px; border-radius: var(--r-full);
-      background: rgba(0,210,190,.12);
-      color: var(--primary);
-      white-space: nowrap;
-      letter-spacing: .02em;
+    .diamond-particle {
+      position: fixed;
+      top: 50%; left: 50%;
+      font-size: 24px;
+      pointer-events: none;
+      animation: explode var(--dur) cubic-bezier(.15,.5,.4,1) forwards;
+      opacity: 0;
+      transform-origin: center;
     }
-    .prize-row.top .prize-badge { background: rgba(255,213,77,.15); color: var(--gold); }
-    .prize-miss-row { color: var(--text-3); font-size: 13px; }
+    @keyframes explode {
+      0%   { transform: translate(-50%,-50%) translate(0,0) scale(0); opacity: 1; }
+      15%  { opacity: 1; transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(1.3); }
+      70%  { opacity: 1; }
+      100% { transform: translate(-50%,-50%) translate(calc(var(--tx)*2.8), calc(var(--ty)*2.8)) scale(.4) rotate(var(--rot)); opacity: 0; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Top Tab Nav -->
+  <!-- FOMO Banner -->
+  <div class="fomo-banner" id="fomo-banner"></div>
+
+  <!-- Top Nav -->
   <nav class="top-nav">
     <button class="nav-tab active" data-page="lv0">💎 Lv.0 試抽</button>
     <button class="nav-tab gold-tab" data-page="lv1">👑 Lv.1+ 實抽</button>
   </nav>
 
+  <!-- Win animation layer -->
+  <div id="win-overlay"></div>
+
   <!-- ═══ LV.0 PAGE ═══ -->
   <div class="page active" id="page-lv0">
-
     <div class="hero lv0">
       <div class="hero-badge">免費試抽</div>
       <h1>每日免費抽獎<br><span style="color:var(--primary)">鑽石存入寶箱</span></h1>
       <p class="hero-sub">累積鑽石，升級 Lv.1 一鍵全領！</p>
     </div>
-
-    <!-- 跑馬燈 -->
-    <div class="marquee-strip">
-      <span class="marquee-inner" id="marqueeEl0"></span>
-    </div>
-
+    <div class="marquee-strip"><span class="marquee-inner" id="marqueeEl0"></span></div>
     <div class="inner">
 
-      <!-- 立即抽獎 -->
+      <!-- 抽獎 -->
       <div class="draw-section">
         <p class="draw-desc">每日免費試抽一次，中獎鑽石封存至寶箱，升級後即可全部提領。</p>
         <button class="cta cta-teal" id="drawLv0">⚡ 立即抽獎</button>
         <div class="result" id="result-lv0">點擊上方按鈕開始今日抽獎！</div>
       </div>
 
-      <!-- 寶箱 + 倒數 -->
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="info-label">💎 我的鑽石</div>
-          <div class="info-val gold" id="chest-val">0</div>
-          <div style="font-size:12px;color:var(--text-3);margin-top:4px">鑽石</div>
+      <!-- 我的鑽石 + 倒數 + 升級（合一） -->
+      <div class="chest-card">
+        <div class="chest-top">
+          <div class="chest-stat">
+            <div class="chest-stat-label">💎 我的鑽石</div>
+            <div class="chest-stat-val gold" id="chest-val">0</div>
+            <div class="chest-stat-unit">鑽石</div>
+          </div>
+          <div class="chest-stat">
+            <div class="chest-stat-label">⏰ 寶箱清空倒數</div>
+            <div class="chest-stat-val countdown" id="countdown-lv0">計算中…</div>
+          </div>
         </div>
-        <div class="info-card">
-          <div class="info-label">⏰ 寶箱清空倒數</div>
-          <div class="info-val countdown" id="countdown-lv0">--天--小時--秒</div>
+        <!-- 升級區塊：有鑽石才顯示 -->
+        <div class="chest-upgrade" id="chest-upgrade">
+          <div class="chest-upgrade-lbl">🎁 升級 Lv.1 即可一鍵提領全部鑽石！</div>
+          <button class="cta cta-gold">🚀 升級 Lv.1 立即領取</button>
         </div>
-      </div>
-
-      <!-- 升級 banner（有鑽石才出現） -->
-      <div class="upgrade-banner" id="upgrade-banner">
-        <div class="chest-amt" id="chest-upgrade-amt">0</div>
-        <div class="chest-lbl">鑽石在寶箱等你領</div>
-        <p>升級至 Lv.1 即可一鍵提領全部鑽石！</p>
-        <button class="cta cta-gold">🚀 升級 Lv.1 立即領取</button>
       </div>
 
       <!-- 全站總池 -->
-      <div class="pool-card">
-        <div class="pool-card-title">
-          🌐 全站總池剩餘
-          <button class="info-btn" onclick="openPrizeModal()">!</button>
-        </div>
+      <div class="pool-card" id="pool-card-lv0">
+        <div class="pool-card-title">🌐 全站總池剩餘<button class="info-btn" onclick="openPrizeModal()">!</button></div>
         <div class="pool-num-row">
           <span class="pool-main" id="pool-remain-lv0">10,000,000</span>
           <span class="pool-side">已領走 <b id="pool-spent-lv0">0</b></span>
         </div>
-        <div class="pool-bar-track">
-          <div class="pool-bar-fill" id="pool-bar-lv0" style="width:100%"></div>
-        </div>
+        <div class="pool-bar-track"><div class="pool-bar-fill" id="pool-bar-lv0" style="width:100%"></div></div>
       </div>
 
-    </div><!-- /inner -->
-  </div><!-- /page-lv0 -->
-
+    </div>
+  </div>
 
   <!-- ═══ LV.1+ PAGE ═══ -->
   <div class="page" id="page-lv1">
-
     <div class="hero lv1">
       <div class="hero-badge">Lv.1+ 專屬</div>
       <h1>每日免費實抽<br><span style="color:var(--gold)">鑽石即時入帳</span></h1>
       <p class="hero-sub">中獎鑽石直接到帳，無需等待！</p>
     </div>
-
-    <!-- 跑馬燈 -->
-    <div class="marquee-strip">
-      <span class="marquee-inner" id="marqueeEl1"></span>
-    </div>
-
+    <div class="marquee-strip"><span class="marquee-inner" id="marqueeEl1"></span></div>
     <div class="inner">
 
-      <!-- 立即抽獎 -->
+      <!-- 抽獎 -->
       <div class="draw-section">
         <p class="draw-desc">每日免費實抽一次，中獎鑽石即時入帳，從全站總池即時扣除。</p>
         <button class="cta cta-gold" id="drawLv1">💰 立即抽獎</button>
@@ -362,23 +275,17 @@
       </div>
 
       <!-- 全站總池 -->
-      <div class="pool-card">
-        <div class="pool-card-title">
-          🌐 全站總池剩餘
-          <button class="info-btn" onclick="openPrizeModal()">!</button>
-        </div>
+      <div class="pool-card" id="pool-card-lv1">
+        <div class="pool-card-title">🌐 全站總池剩餘<button class="info-btn" onclick="openPrizeModal()">!</button></div>
         <div class="pool-num-row">
           <span class="pool-main" id="pool-remain-lv1">10,000,000</span>
           <span class="pool-side">已領走 <b id="pool-spent-lv1">0</b></span>
         </div>
-        <div class="pool-bar-track">
-          <div class="pool-bar-fill" id="pool-bar-lv1" style="width:100%"></div>
-        </div>
+        <div class="pool-bar-track"><div class="pool-bar-fill" id="pool-bar-lv1" style="width:100%"></div></div>
       </div>
 
-    </div><!-- /inner -->
-  </div><!-- /page-lv1 -->
-
+    </div>
+  </div>
 
   <!-- Prize Modal -->
   <div class="modal-overlay" id="prizeModal" onclick="closePrizeModal()">
@@ -392,129 +299,230 @@
   </div>
 
   <script>
-    const prizes = [
-      { d: 10000, odds: 0.01, em: '👑' },
-      { d: 5000,  odds: 0.05, em: '💫' },
-      { d: 3000,  odds: 0.5,  em: '🔥' },
-      { d: 1000,  odds: 1,    em: '✨' },
-      { d: 500,   odds: 5,    em: '⭐' },
-      { d: 200,   odds: 10,   em: '🌟' },
-      { d: 100,   odds: 20,   em: '💎' },
-      { d: 50,    odds: 30,   em: '💎' },
+    /* ── Prize pools ── */
+    const prizesLv0 = [
+      { d:10000, odds:0.05, em:'👑' },
+      { d:5000,  odds:0.3,  em:'💫' },
+      { d:3000,  odds:2.5,  em:'🔥' },
+      { d:1000,  odds:3,    em:'✨' },
+      { d:500,   odds:8,    em:'⭐' },
+      { d:200,   odds:10,   em:'🌟' },
+      { d:100,   odds:4,    em:'💎' },
+      { d:50,    odds:2,    em:'💎' },
     ];
+    const prizesLv1 = [
+      { d:10000, odds:0.01, em:'👑' },
+      { d:5000,  odds:0.05, em:'💫' },
+      { d:3000,  odds:0.5,  em:'🔥' },
+      { d:1000,  odds:1,    em:'✨' },
+      { d:500,   odds:5,    em:'⭐' },
+      { d:200,   odds:10,   em:'🌟' },
+      { d:100,   odds:20,   em:'💎' },
+      { d:50,    odds:30,   em:'💎' },
+    ];
+    const LV0_MISS = 69.6, LV1_MISS = 599;
     const TOTAL = 10000000;
-    let spent = 0, chest = 0, earned = 0;
-    const lv0Ref = { v: 0 }, lv1Ref = { v: 0 };
+
+    let spent = 0, chest = 0, earned = 0, lv0DrawCount = 0;
+    const lv0Ref = { v:0 }, lv1Ref = { v:0 };
     const fmt = n => Math.round(n).toLocaleString('zh-Hant');
 
-    function weightedDraw() {
-      const tw = prizes.reduce((s,p) => s + p.odds, 0);
-      const r  = Math.random() * (tw + 599);
-      if (r > tw) return 0;
-      let c = 0;
-      for (const p of prizes) { c += p.odds; if (r <= c) return p.d; }
-      return 0;
+    function weightedDraw(prizes, missPool) {
+      const tw = prizes.reduce((s,p)=>s+p.odds,0);
+      const r  = Math.random()*(tw+missPool);
+      if (r>tw) return 0;
+      let c=0; for(const p of prizes){c+=p.odds;if(r<=c)return p.d;} return 0;
     }
-
-    function doGuaranteed(ref, onWin, onMiss) {
+    function drawLv0() {
+      lv0DrawCount++;
+      return weightedDraw(prizesLv0, lv0DrawCount<=3 ? 20 : LV0_MISS);
+    }
+    function doGuaranteed(ref, drawFn, onWin, onMiss) {
       let win;
-      if (ref.v >= 6) { win = 50; ref.v = 0; }
-      else { win = weightedDraw(); win === 0 ? ref.v++ : (ref.v = 0); }
-      win > 0 ? onWin(win) : onMiss();
+      if(ref.v>=6){win=50;ref.v=0;}
+      else{win=drawFn();win===0?ref.v++:(ref.v=0);}
+      win>0?onWin(win):onMiss();
     }
 
+    const missHints = [
+      '🥺 這次沒中，明天繼續來抽！',
+      '😮‍💨 差一點點，手氣快來了！',
+      '🤞 感覺快中了，明天繼續！',
+      '💪 堅持就是勝利，明天再試！',
+    ];
+
+    /* ── FOMO thresholds ── */
+    function updateFOMO(remain) {
+      const pct = remain / TOTAL * 100;
+      const banner = document.getElementById('fomo-banner');
+      const bars   = document.querySelectorAll('.pool-bar-fill');
+      const mains  = document.querySelectorAll('.pool-main');
+      const cards  = document.querySelectorAll('.pool-card');
+
+      if (pct <= 10) {
+        banner.className = 'fomo-banner danger show';
+        banner.textContent = '🚨 總池剩餘不足 10%！鑽石快搶光了，立即升級提領！';
+        bars.forEach(b  => b.className  = 'pool-bar-fill danger');
+        mains.forEach(m => m.className  = 'pool-main danger');
+        cards.forEach(c => c.className  = 'pool-card danger-state');
+      } else if (pct <= 20) {
+        banner.className = 'fomo-banner warn show';
+        banner.textContent = '⚠️ 總池剩餘已不足 20%，搶光了就沒了！';
+        bars.forEach(b  => b.className  = 'pool-bar-fill warn');
+        mains.forEach(m => m.className  = 'pool-main warn');
+        cards.forEach(c => c.className  = 'pool-card warn-state');
+      } else {
+        banner.className = 'fomo-banner';
+        bars.forEach(b  => b.className  = 'pool-bar-fill');
+        mains.forEach(m => m.className  = 'pool-main');
+        cards.forEach(c => c.className  = 'pool-card');
+      }
+    }
+
+    /* ── Win animation ── */
+    function playWinAnimation(amount) {
+      const overlay = document.getElementById('win-overlay');
+      overlay.innerHTML = '';
+
+      // 數量依獎項大小：50→6顆，100→10，200→16，500→22，1000→30，3000→45，5000→60，10000→80
+      const count =
+        amount >= 10000 ? 80 :
+        amount >= 5000  ? 60 :
+        amount >= 3000  ? 45 :
+        amount >= 1000  ? 30 :
+        amount >= 500   ? 22 :
+        amount >= 200   ? 16 :
+        amount >= 100   ? 10 : 6;
+
+      const emojis = ['💎','💎','✨','💎','⭐','💫','💎','🔥'];
+
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('span');
+        el.className = 'diamond-particle';
+
+        // 360度均勻噴射，帶隨機偏移
+        const angle   = (i / count) * 360 + (Math.random() - .5) * (360 / count);
+        const rad     = angle * Math.PI / 180;
+        const dist    = 80 + Math.random() * 80; // 初始噴射半徑 px
+        const tx      = Math.cos(rad) * dist;
+        const ty      = Math.sin(rad) * dist;
+        const dur     = .8 + Math.random() * .7;
+        const size    = amount >= 3000 ? 20 + Math.random() * 16 : 16 + Math.random() * 10;
+        const rot     = (Math.random() - .5) * 720 + 'deg';
+
+        el.style.cssText = `
+          --tx: ${tx}px; --ty: ${ty}px;
+          --dur: ${dur}s; --rot: ${rot};
+          font-size: ${size}px;
+          animation-delay: ${i * 0.018}s;
+        `;
+        el.textContent = emojis[i % emojis.length];
+        overlay.appendChild(el);
+      }
+
+      setTimeout(() => { overlay.innerHTML = ''; }, 2500);
+    }
+
+    /* ── UI update ── */
     function updateAll() {
-      const remain = Math.max(0, TOTAL - spent);
-      const pct = (remain / TOTAL * 100).toFixed(1) + '%';
-      ['lv0','lv1'].forEach(id => {
+      const remain = Math.max(0, TOTAL-spent);
+      const pct = (remain/TOTAL*100).toFixed(1)+'%';
+      ['lv0','lv1'].forEach(id=>{
         document.getElementById(`pool-remain-${id}`).textContent = fmt(remain);
         document.getElementById(`pool-spent-${id}`).textContent  = fmt(spent);
         document.getElementById(`pool-bar-${id}`).style.width    = pct;
       });
-      document.getElementById('chest-val').textContent         = fmt(chest);
-      document.getElementById('chest-upgrade-amt').textContent = fmt(chest);
-      document.getElementById('upgrade-banner').classList.toggle('show', chest > 0);
-      document.getElementById('earned-val').textContent = fmt(earned);
+      document.getElementById('chest-val').textContent   = fmt(chest);
+      document.getElementById('earned-val').textContent  = fmt(earned);
+      const upg = document.getElementById('chest-upgrade');
+      upg.classList.toggle('show', chest>0);
+      updateFOMO(remain);
     }
 
     function showResult(id, text, cls) {
       const el = document.getElementById(id);
-      el.textContent = text;
-      el.className = 'result ' + cls;
-      void el.offsetWidth;
-      el.classList.add('animate');
-      el.addEventListener('animationend', () => el.classList.remove('animate'), { once: true });
+      el.textContent=text; el.className='result '+cls;
+      void el.offsetWidth; el.classList.add('animate');
+      el.addEventListener('animationend',()=>el.classList.remove('animate'),{once:true});
     }
 
-    document.getElementById('drawLv0').addEventListener('click', () => {
-      doGuaranteed(lv0Ref,
-        win => { chest += win; updateAll(); showResult('result-lv0', `🎉 恭喜中獎！${fmt(win)} 鑽已存入你的寶箱。升級 Lv.1 即可立刻提領！`, 'win-gold'); },
-        ()  => { updateAll(); showResult('result-lv0', '🥺 這次沒中，明天繼續來抽！', 'miss'); }
+    /* ── Draw handlers ── */
+    document.getElementById('drawLv0').addEventListener('click', ()=>{
+      doGuaranteed(lv0Ref, drawLv0,
+        win=>{
+          chest+=win; updateAll();
+          playWinAnimation(win);
+          const msg = win>=3000
+            ? `🎉 恭喜中大獎！${fmt(win)} 鑽已存入寶箱，升級 Lv.1 即可立刻提領！`
+            : `🎉 恭喜中獎！${fmt(win)} 鑽已存入寶箱，升級 Lv.1 即可立刻提領！`;
+          showResult('result-lv0', msg, 'win-gold');
+        },
+        ()=>{
+          updateAll();
+          showResult('result-lv0', missHints[Math.min(lv0Ref.v-1, missHints.length-1)], 'miss');
+        }
       );
     });
 
-    document.getElementById('drawLv1').addEventListener('click', () => {
-      doGuaranteed(lv1Ref,
-        win => { spent += win; earned += win; updateAll(); showResult('result-lv1', `💰 恭喜！${fmt(win)} 鑽已即時入帳 🎊`, 'win-gold'); },
-        ()  => { updateAll(); showResult('result-lv1', '😶 這次沒中，明天繼續來抽！', 'miss'); }
+    document.getElementById('drawLv1').addEventListener('click', ()=>{
+      doGuaranteed(lv1Ref, ()=>weightedDraw(prizesLv1,LV1_MISS),
+        win=>{
+          spent+=win; earned+=win; updateAll();
+          playWinAnimation(win);
+          showResult('result-lv1', `💰 恭喜！${fmt(win)} 鑽已即時入帳 🎊`, 'win-gold');
+        },
+        ()=>{
+          updateAll();
+          showResult('result-lv1', missHints[Math.min(lv1Ref.v-1, missHints.length-1)], 'miss');
+        }
       );
     });
 
-    document.querySelectorAll('.nav-tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    /* ── Tab nav ── */
+    document.querySelectorAll('.nav-tab').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById(`page-${btn.dataset.page}`).classList.add('active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({top:0,behavior:'smooth'});
       });
     });
 
-    const oddsLabel = odds => {
-      if (odds <= 0.01) return '極罕見';
-      if (odds <= 0.05) return '非常稀有';
-      if (odds <= 0.5)  return '稀有';
-      if (odds <= 1)    return '不常見';
-      if (odds <= 5)    return '普通';
-      if (odds <= 10)   return '常見';
-      return '很常見';
-    };
-
-    function renderPrizes(id) {
-      document.getElementById(id).innerHTML =
-        prizes.map((p,i) => `
-          <div class="prize-row ${i < 2 ? 'top' : ''}">
-            <span class="prize-em">${p.em}</span>
-            <span class="prize-d">${fmt(p.d)} 鑽</span>
-            <span class="prize-badge">${oddsLabel(p.odds)}</span>
-          </div>`).join('') +
-        `<div class="prize-row"><span class="prize-em">🙏</span><span class="prize-miss-row">銘謝惠顧</span></div>`;
-    }
-    renderPrizes('prize-list-modal');
+    /* ── Prize modal ── */
+    const oddsLabel = o => o<=0.05?'極罕見':o<=0.3?'非常稀有':o<=2.5?'稀有':o<=3?'不常見':o<=8?'普通':o<=10?'常見':'很常見';
+    document.getElementById('prize-list-modal').innerHTML =
+      prizesLv0.map((p,i)=>`
+        <div class="prize-row ${i<2?'top':''}">
+          <span class="prize-em">${p.em}</span>
+          <span class="prize-d">${fmt(p.d)} 鑽</span>
+          <span class="prize-badge">${oddsLabel(p.odds)}</span>
+        </div>`).join('')+
+      `<div class="prize-row"><span class="prize-em">🙏</span><span class="prize-miss-row">銘謝惠顧</span></div>`;
 
     function openPrizeModal()  { document.getElementById('prizeModal').classList.add('open'); }
     function closePrizeModal() { document.getElementById('prizeModal').classList.remove('open'); }
 
+    /* ── Countdown ── */
     function tick() {
-      const now = new Date(), end = new Date(now);
-      end.setUTCDate(now.getUTCDate() + ((7 - now.getUTCDay()) % 7 || 7));
+      const now=new Date(), end=new Date(now);
+      end.setUTCDate(now.getUTCDate()+((7-now.getUTCDay())%7||7));
       end.setUTCHours(0,0,0,0);
-      const s = Math.max(0, Math.floor((end - now) / 1000));
-      const d = Math.floor(s / 86400);
-      const h = Math.floor((s % 86400) / 3600);
-      const sec = s % 60;
-      document.getElementById('countdown-lv0').textContent = `${d}天 ${h}小時 ${sec}秒`;
+      const s=Math.max(0,Math.floor((end-now)/1000));
+      document.getElementById('countdown-lv0').textContent =
+        `${Math.floor(s/86400)}天 ${Math.floor((s%86400)/3600)}小時 ${s%60}秒`;
     }
 
-    const feeds = ['uid7821 升級 Lv.1 提領 3,000 鑽 🎉','uid9902 抽中 1,000 鑽 💰','uid4450 實抽中 500 鑽 ✨','uid6619 升級提領 10,000 鑽 👑','uid3317 保底中 50 鑽','uid2209 抽中 5,000 鑽大獎 💫'];
-    const txt = (feeds.join('  ✦  ') + '  ✦  ').repeat(2);
-    document.getElementById('marqueeEl0').textContent = txt;
-    document.getElementById('marqueeEl1').textContent = txt;
+    /* ── Marquee ── */
+    const feeds=['uid7821 升級 Lv.1 提領 3,000 鑽 🎉','uid9902 抽中 1,000 鑽 💰','uid4450 實抽中 500 鑽 ✨','uid6619 升級提領 10,000 鑽 👑','uid3317 保底中 50 鑽','uid2209 抽中 5,000 鑽大獎 💫'];
+    const txt=(feeds.join('  ✦  ')+'  ✦  ').repeat(2);
+    document.getElementById('marqueeEl0').textContent=txt;
+    document.getElementById('marqueeEl1').textContent=txt;
 
-    updateAll(); tick(); setInterval(tick, 1000);
+    updateAll(); tick(); setInterval(tick,1000);
   </script>
 
-  <footer style="text-align:center; padding: 20px 16px 32px; font-size: 11px; color: var(--text-3); line-height: 1.7; max-width: 720px; margin: 0 auto;">
+  <footer style="text-align:center;padding:20px 16px 32px;font-size:11px;color:var(--text-3);line-height:1.7;max-width:720px;margin:0 auto;">
     本活動最終解釋權歸官方所有。官方保留隨時修改、暫停或終止活動之權利，恕不另行通知。鑽石獎勵以實際入帳為準，活動期間如遇系統異常，官方有權進行調整或回收。
   </footer>
 </body>
