@@ -486,19 +486,41 @@
         btn.classList.add('active');
         document.getElementById(`page-${btn.dataset.page}`).classList.add('active');
         window.scrollTo({top:0,behavior:'smooth'});
+        renderPrizeModal(btn.dataset.page === 'lv0');
       });
     });
 
     /* ── Prize modal ── */
-    const oddsLabel = o => o<=0.05?'極罕見':o<=0.3?'非常稀有':o<=2.5?'稀有':o<=3?'不常見':o<=8?'普通':o<=10?'常見':'很常見';
-    document.getElementById('prize-list-modal').innerHTML =
-      prizesLv0.map((p,i)=>`
-        <div class="prize-row ${i<2?'top':''}">
-          <span class="prize-em">${p.em}</span>
-          <span class="prize-d">${fmt(p.d)} 鑽</span>
-          <span class="prize-badge">${oddsLabel(p.odds)}</span>
-        </div>`).join('')+
-      `<div class="prize-row"><span class="prize-em">🙏</span><span class="prize-miss-row">銘謝惠顧</span></div>`;
+    const lv0Map = Object.fromEntries(prizesLv0.map(p=>[p.d, p.odds]));
+    const lv1Map = Object.fromEntries(prizesLv1.map(p=>[p.d, p.odds]));
+
+    const rarityLabel = odds => {
+      if (odds <= 0.05) return '極罕見';
+      if (odds <= 0.3)  return '非常稀有';
+      if (odds <= 2.5)  return '稀有';
+      if (odds <= 3)    return '不常見';
+      if (odds <= 8)    return '普通';
+      if (odds <= 10)   return '常見';
+      return '很常見';
+    };
+
+    function renderPrizeModal(isLv0) {
+      // 永遠顯示較低的 Lv.1+ 機率（對外統一呈現）
+      const prizes = prizesLv1;
+      document.getElementById('prize-list-modal').innerHTML =
+        prizes.map((p, i) => `
+          <div class="prize-row ${i < 2 ? 'top' : ''}">
+            <span class="prize-em">${p.em}</span>
+            <span class="prize-d">${fmt(p.d)} 鑽</span>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+              <span class="prize-badge">${rarityLabel(p.odds)}</span>
+              <span style="font-size:11px;color:var(--text-3)">${p.odds}%</span>
+            </div>
+          </div>`).join('') +
+        `<div class="prize-row"><span class="prize-em">🙏</span><span class="prize-miss-row">銘謝惠顧</span></div>`;
+    }
+
+    renderPrizeModal(true); // 預設顯示 Lv.0
 
     function openPrizeModal()  { document.getElementById('prizeModal').classList.add('open'); }
     function closePrizeModal() { document.getElementById('prizeModal').classList.remove('open'); }
