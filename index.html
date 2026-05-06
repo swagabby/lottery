@@ -1,574 +1,1530 @@
-<!doctype html>
-<html lang="zh-Hant">
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>全站搶鑽大戰｜千萬鑽石免費送</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --surface:      #191919;
-      --surface-card: #232323;
-      --divider:      #474747;
-      --primary:      #00D2BE;
-      --on-primary:   #191919;
-      --text-1:       #FFFFFF;
-      --text-2:       #C8C8C8;
-      --text-3:       #9B9B9B;
-      --gold:         #FFD54D;
-      --warn:         #FF8C42;
-      --danger:       #FF4D4D;
-      --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-full: 1000px;
-      --font: "PingFang TC", "Noto Sans TC", sans-serif;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--surface); color: var(--text-1); font-family: var(--font); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP 預約後台</title>
+<style>
+:root {
+  --primary:     #00D2BE;
+  --primary-dim: rgba(0,210,190,0.10);
+  --primary-glow:rgba(0,210,190,0.18);
+  --surface:     #111111;
+  --surface-2:   #181818;
+  --surface-3:   #202020;
+  --surface-4:   #282828;
+  --outline:     #3a3a3a;
+  --outline-v:   rgba(58,58,58,0.6);
+  --on-1:        #F4F4F4;  /* 主文字：更亮 */
+  --on-2:        #C8C8C8;  /* 次要文字：從 #A8 → #C8 */
+  --on-3:        #888888;  /* 輔助文字：從 #50 → #88，眼睛不痛 */
+  --error:       #E03030;
+  --warning:     #F0A020;
+  --success:     #00D2BE;
+  --info:        #60C4E8;
+  --purple:      #9B6EFF;
+  --scrim:       rgba(4,4,4,0.92);
+  --r-s:4px;--r-m:8px;--r-l:12px;--r-xl:16px;--r-2xl:20px;--r-full:1000px;
+  --topbar-h:54px;
+  --tabs-h:44px;
+  --filter-h:52px;
+  --tr: 0.15s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--surface);
+  color:var(--on-1);
+  font-family:'PingFang TC',-apple-system,'Helvetica Neue',sans-serif;
+  font-size:13px;
+  height:100vh;height:100dvh;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
 
-    /* ── FOMO Banner ── */
-    .fomo-banner {
-      display: none;
-      padding: 10px 16px;
-      text-align: center;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: .03em;
-      animation: pulse 2s ease-in-out infinite;
-    }
-    .fomo-banner.warn   { background: rgba(255,140,66,.15); border-bottom: 1px solid rgba(255,140,66,.4); color: var(--warn); }
-    .fomo-banner.danger { background: rgba(255,77,77,.15);  border-bottom: 1px solid rgba(255,77,77,.4);  color: var(--danger); }
-    .fomo-banner.show   { display: block; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.65} }
+/* ─── Dev Banner ─── */
+#dev-banner{
+  display:none;
+  background:repeating-linear-gradient(45deg,#b00,#b00 10px,#d49500 10px,#d49500 20px);
+  color:#000;font-weight:900;font-size:11px;
+  padding:6px 16px;text-align:center;letter-spacing:0.5px;flex-shrink:0;
+}
 
-    /* ── Top Nav ── */
-    .top-nav { position: sticky; top: 0; z-index: 100; background: var(--surface-card); border-bottom: 1px solid var(--divider); display: flex; padding: 0 16px; }
-    .nav-tab { flex:1; background:none; border:none; border-bottom:3px solid transparent; padding:16px 8px; font-family:var(--font); font-size:16px; font-weight:800; color:var(--text-3); cursor:pointer; transition:color .2s,border-color .2s; }
-    .nav-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
-    .nav-tab.active.gold-tab { color:var(--gold); border-bottom-color:var(--gold); }
-    .nav-tab:hover:not(.active) { color:var(--text-2); }
+/* ─── Loader ─── */
+#loader{
+  display:flex;position:fixed;inset:0;
+  background:var(--surface);
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:14px;z-index:2000;
+}
+#loader.hide{display:none;}
+.spinner{
+  width:32px;height:32px;
+  border:2.5px solid rgba(0,210,190,0.08);
+  border-top-color:var(--primary);
+  border-radius:50%;animation:spin .75s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loader-text{color:var(--primary);font-size:10px;font-weight:700;letter-spacing:3px;}
 
-    /* ── Pages ── */
-    .page { display:none; }
-    .page.active { display:block; animation:fadein .25s ease; }
-    @keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+/* ─── Access Denied ─── */
+#access-denied{
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;flex:1;gap:8px;text-align:center;
+}
+#access-denied.show{display:flex;}
 
-    /* ── Hero ── */
-    .hero { position:relative; padding:32px 16px 28px; text-align:center; overflow:hidden; }
-    .hero.lv0 { background:linear-gradient(160deg,#091716,#0d2420 60%,#0a1a18); border-bottom:1px solid rgba(0,210,190,.2); }
-    .hero.lv1 { background:linear-gradient(160deg,#1a1500,#201b00 60%,#141000); border-bottom:1px solid rgba(255,213,77,.2); }
-    .hero::before { content:''; position:absolute; inset:0; pointer-events:none; }
-    .hero.lv0::before { background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(0,210,190,.18),transparent 65%); }
-    .hero.lv1::before { background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(255,213,77,.15),transparent 65%); }
-    .hero-badge { display:inline-block; border-radius:var(--r-full); padding:3px 14px; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px; }
-    .lv0 .hero-badge { border:1px solid var(--primary); color:var(--primary); }
-    .lv1 .hero-badge { border:1px solid var(--gold); color:var(--gold); }
-    .hero h1 { font-size:clamp(28px,5vw,44px); font-weight:900; line-height:1.15; margin-bottom:8px; letter-spacing:-.01em; }
-    .hero-sub { font-size:14px; color:var(--text-2); font-weight:500; }
+/* ─── Main ─── */
+#main{display:none;flex:1;flex-direction:column;min-height:0;}
+#main.show{display:flex;}
 
-    /* ── Marquee ── */
-    .marquee-strip { background:rgba(0,210,190,.07); border-top:1px solid rgba(0,210,190,.15); border-bottom:1px solid rgba(0,210,190,.15); padding:10px 0; overflow:hidden; white-space:nowrap; }
-    .marquee-inner { display:inline-block; font-size:13px; font-weight:600; color:var(--primary); animation:scroll 32s linear infinite; }
-    @keyframes scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+/* ─── Topbar ─── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;height:var(--topbar-h);
+  background:var(--surface-2);
+  border-bottom:1px solid var(--outline-v);
+  flex-shrink:0;gap:10px;
+}
+.topbar-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
+.topbar-logo{
+  width:26px;height:26px;border-radius:var(--r-m);
+  background:linear-gradient(135deg,var(--primary),#008c82);
+  color:#000;font-size:12px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.topbar-title{font-size:14px;font-weight:700;white-space:nowrap;}
+.topbar-divider{width:1px;height:12px;background:var(--outline);flex-shrink:0;}
+.topbar-subtitle{font-size:12px;color:var(--on-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-    /* ── Inner ── */
-    .inner { max-width:720px; margin:0 auto; padding:20px 16px 40px; display:grid; gap:14px; }
+/* 重整按鈕貼在標題右邊 */
+.btn-refresh{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  background:var(--surface-3);border:1px solid var(--outline);
+  color:var(--on-2);border-radius:var(--r-m);
+  padding:0 10px;height:28px;font-size:12px;font-weight:600;font-family:inherit;
+  cursor:pointer;transition:background var(--tr),color var(--tr),transform .2s;
+  white-space:nowrap;flex-shrink:0;
+}
+.btn-refresh:hover{background:var(--surface-4);color:var(--on-1);}
+.btn-refresh:active{transform:rotate(180deg);}
 
-    /* ── Pool card ── */
-    .pool-card { background:var(--surface-card); border:1px solid var(--divider); border-radius:var(--r-lg); padding:18px 20px; transition:border-color .5s; }
-    .pool-card.warn-state   { border-color:rgba(255,140,66,.5); }
-    .pool-card.danger-state { border-color:rgba(255,77,77,.5); }
-    .pool-card-title { font-size:13px; color:var(--text-3); margin-bottom:10px; font-weight:600; letter-spacing:.04em; display:flex; align-items:center; justify-content:space-between; }
-    .info-btn { width:20px; height:20px; border-radius:50%; border:1.5px solid var(--primary); background:none; color:var(--primary); font-size:11px; font-weight:900; cursor:pointer; line-height:1; transition:background .18s,color .18s; flex-shrink:0; }
-    .info-btn:hover { background:var(--primary); color:var(--on-primary); }
-    .pool-num-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
-    .pool-main { font-size:22px; font-weight:900; color:var(--primary); transition:color .5s; }
-    .pool-main.warn   { color:var(--warn); }
-    .pool-main.danger { color:var(--danger); }
-    .pool-side { font-size:13px; color:var(--text-3); }
-    .pool-side b { color:var(--text-2); font-weight:600; }
-    .pool-bar-track { background: linear-gradient(90deg, #FF4D4D 0%, #FF8C42 10%, #FFD54D 22%, #00D2BE 30%, #00D2BE 100%); border-radius:var(--r-full); height:6px; overflow:hidden; position:relative; }
-    .pool-bar-fill { height:100%; border-radius:var(--r-full); transition:width .8s ease; background: var(--surface-card); position:absolute; right:0; top:0; }
-    .pool-bar-fill.warn, .pool-bar-fill.danger { background: var(--surface-card); }
+/* 手動新增按鈕 */
+.btn-add{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  background:var(--primary-dim);border:1px solid rgba(0,210,190,0.3);
+  color:var(--primary);border-radius:var(--r-m);
+  padding:0 12px;height:28px;font-size:12px;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:background var(--tr);white-space:nowrap;flex-shrink:0;
+}
+.btn-add:hover{background:rgba(0,210,190,0.18);}
 
-    /* ── Modal ── */
-    .modal-overlay { display:none; position:fixed; inset:0; z-index:999; background:rgba(0,0,0,.7); align-items:flex-end; justify-content:center; }
-    .modal-overlay.open { display:flex; animation:fadein .2s ease; }
-    .modal-box { background:var(--surface-card); border:1px solid var(--divider); border-radius:var(--r-lg) var(--r-lg) 0 0; padding:20px; width:100%; max-width:540px; max-height:80vh; overflow-y:auto; animation:slideup .25s ease; }
-    @keyframes slideup { from{transform:translateY(40px);opacity:0} to{transform:none;opacity:1} }
-    .modal-header { display:flex; justify-content:space-between; align-items:center; font-size:16px; font-weight:700; margin-bottom:16px; }
-    .modal-close { background:none; border:none; color:var(--text-3); font-size:16px; cursor:pointer; padding:4px 8px; border-radius:var(--r-sm); transition:color .15s; }
-    .modal-close:hover { color:var(--text-1); }
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.topbar-user-info{text-align:right;}
+.topbar-user-name{font-size:12px;font-weight:600;line-height:1.3;}
+.topbar-user-role{font-size:10px;color:var(--primary);line-height:1.3;}
+.topbar-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),#008c82);
+  color:#000;font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
 
-    /* ── Draw section ── */
-    .draw-section { background:var(--surface-card); border:1px solid var(--divider); border-radius:var(--r-lg); padding:20px; }
-    .draw-desc { font-size:14px; color:var(--text-2); margin-bottom:14px; line-height:1.6; }
+/* ─── Benefit Tabs ─── */
+.benefit-tabs-wrap {
+  position: relative;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--outline-v);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.tabs-scroll-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: var(--tabs-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  border: none;
+  color: var(--on-2);
+  font-size: 16px;
+  cursor: pointer;
+  transition: color var(--tr), background var(--tr);
+  z-index: 2;
+}
+.tabs-scroll-btn:hover { color: var(--on-1); background: var(--surface-3); }
+.tabs-scroll-btn.hidden { opacity: 0; pointer-events: none; }
+.tabs-scroll-btn.left { border-right: 1px solid var(--outline-v); }
+.tabs-scroll-btn.right { border-left: 1px solid var(--outline-v); }
+.benefit-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: var(--tabs-h);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0 2px;
+  flex: 1;
+}
+.benefit-tabs::-webkit-scrollbar { display: none; }
+.tab-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:0 14px;height:calc(var(--tabs-h) - 2px);
+  font-size:12px;font-weight:600;font-family:inherit;
+  color:var(--on-2);background:transparent;border:none;
+  border-bottom:2px solid transparent;
+  cursor:pointer;white-space:nowrap;
+  transition:color var(--tr),border-color var(--tr),background var(--tr);
+  flex-shrink:0;position:relative;
+}
+.tab-btn:hover{color:var(--on-1);background:var(--surface-3);}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
+.tab-count{
+  font-size:10px;font-weight:700;
+  background:rgba(0,210,190,0.12);color:var(--primary);
+  border-radius:var(--r-full);padding:1px 6px;
+}
+.tab-btn:not(.active) .tab-count{background:var(--surface-4);color:var(--on-2);}
 
-    /* ── CTA ── */
-    .cta { display:block; width:auto; margin:0 auto; border:0; border-radius:var(--r-full); padding:14px 36px; font-family:var(--font); font-size:16px; font-weight:700; cursor:pointer; transition:opacity .18s,transform .1s; letter-spacing:.03em; }
-    .cta-teal { background:linear-gradient(135deg,#00e5cf,#00b8a8); color:var(--on-primary); box-shadow:0 4px 20px rgba(0,210,190,.45); }
-    .cta-gold  { background:linear-gradient(135deg,#ffe066,#f5b800); color:#1a1500; box-shadow:0 4px 20px rgba(255,213,77,.45); }
-    .cta:hover  { opacity:.86; }
-    .cta:active { transform:scale(.98); }
+/* ─── Stats Bar ─── */
+.stats-bar{
+  display:flex;background:var(--surface-2);
+  border-bottom:1px solid var(--outline-v);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;flex-shrink:0;
+}
+.stats-bar::-webkit-scrollbar{display:none;}
+.stat-item{
+  flex:1;min-width:72px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:10px 8px 8px;cursor:pointer;
+  transition:background var(--tr);
+  position:relative;border-right:1px solid var(--outline-v);
+  user-select:none;gap:2px;
+}
+.stat-item:last-child{border-right:none;}
+.stat-item:hover{background:var(--surface-3);}
+.stat-item.active{background:var(--surface-3);}
+.stat-item.active::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:2px;background:var(--primary);border-radius:2px 2px 0 0;
+}
+.stat-num{font-size:20px;font-weight:700;line-height:1;letter-spacing:-0.5px;}
+.stat-label{font-size:10px;color:var(--on-3);white-space:nowrap;}
+.stat-all  .stat-num{color:var(--on-1);}
+.stat-rcvd .stat-num{color:#60C4E8;}
+.stat-proc .stat-num{color:#F0A020;}
+.stat-mat  .stat-num{color:#9B6EFF;}
+.stat-matd .stat-num{color:#EC6CC2;}
+.stat-sch  .stat-num{color:#3DC47A;}
+.stat-done .stat-num{color:#00D2BE;}
+.stat-rej  .stat-num{color:var(--error);}
 
-    /* ── Result ── */
-    .result { margin-top:14px; padding:12px 16px; border-radius:var(--r-md); background:var(--surface); border:1px solid var(--divider); font-size:14px; font-weight:600; color:var(--text-3); min-height:46px; line-height:1.5; transition:border-color .2s,color .2s,background .2s; }
-    .result.win-teal { border-color:var(--primary); color:var(--primary); background:rgba(0,210,190,.07); }
-    .result.win-gold { border-color:var(--gold); color:var(--gold); background:rgba(255,213,77,.06); }
-    .result.miss { color:var(--text-3); }
-    @keyframes pop { 0%{transform:scale(.94);opacity:.4} 65%{transform:scale(1.03)} 100%{transform:scale(1);opacity:1} }
-    .result.animate { animation:pop .35s ease; }
+/* ─── Filter Bar ─── */
+.filter-bar{
+  display:flex;flex-wrap:wrap;gap:7px;
+  padding:8px 18px;
+  border-bottom:1px solid var(--outline-v);
+  align-items:center;background:var(--surface-2);flex-shrink:0;
+}
+.filter-bar input[type="text"]{
+  background:var(--surface-3);border:1px solid var(--outline);
+  border-radius:var(--r-s);color:var(--on-1);
+  padding:0 12px;font-size:12px;height:32px;
+  outline:none;font-family:inherit;
+  transition:border-color var(--tr),background var(--tr);
+  min-width:200px;
+}
+.filter-bar input:hover{border-color:#444;background:var(--surface-4);}
+.filter-bar input:focus{border-color:var(--primary);}
+.filter-bar input::placeholder{color:var(--on-3);}
+.count-label{font-size:11px;color:var(--on-3);margin-left:auto;white-space:nowrap;}
 
-    /* ── Chest card (merged) ── */
-    .chest-card {
-      background: var(--surface-card);
-      border: 1px solid var(--divider);
-      border-radius: var(--r-lg);
-      padding: 20px;
-      text-align: center;
-    }
-    .chest-top {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .chest-stat { }
-    .chest-stat-label { font-size: 15px; font-weight: 600; color: var(--text-3); margin-bottom: 8px; }
-    .chest-stat-val { font-size: 32px; font-weight: 900; line-height: 1.2; }
-    .chest-stat-val.gold { color: var(--gold); }
-    .chest-stat-val.countdown { font-size: 16px; font-weight: 800; color: var(--text-1); line-height: 1.8; }
-    .chest-stat-unit { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+/* ─── Status Filter Pills ─── */
 
-    /* upgrade section inside chest card — hidden until chest > 0 */
-    .chest-upgrade { display: none; border-top: 1px solid var(--divider); padding-top: 16px; }
-    .chest-upgrade.show { display: block; animation: fadein .3s ease; }
-    .chest-upgrade-lbl { font-size: 13px; color: var(--text-2); margin-bottom: 14px; }
+/* ─── Table ─── */
+.table-wrap{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding-bottom:60px;min-height:0;}
+table{width:max-content;min-width:100%;border-collapse:collapse;}
+thead th{
+  position:sticky;top:0;
+  background:var(--surface);z-index:10;
+  padding:9px 14px;font-size:10px;font-weight:700;color:var(--on-3);
+  box-shadow:inset 0 -1px 0 var(--outline);
+  white-space:nowrap;user-select:none;cursor:pointer;
+  transition:color var(--tr);letter-spacing:.6px;text-transform:uppercase;
+}
+thead th:hover{color:var(--on-2);}
+thead th.sort-asc::after{content:' ↑';color:var(--primary);}
+thead th.sort-desc::after{content:' ↓';color:var(--primary);}
+thead th.no-sort{cursor:default;}
+thead th.no-sort:hover{color:var(--on-3);}
+tbody tr{border-bottom:1px solid var(--outline-v);cursor:pointer;transition:background var(--tr);}
+tbody tr:hover{background:rgba(255,255,255,0.022);}
+tbody tr.row-new{background:rgba(0,210,190,0.035);}
+tbody tr.row-new td:first-child{box-shadow:inset 3px 0 0 var(--primary);}
+tbody tr.row-new:hover{background:rgba(0,210,190,0.06);}
+td{padding:10px 14px;font-size:12px;vertical-align:middle;white-space:nowrap;}
+td.col-time{min-width:130px;color:var(--on-3);font-size:11px;font-variant-numeric:tabular-nums;}
+td.col-user{min-width:110px;max-width:150px;overflow:hidden;text-overflow:ellipsis;font-weight:600;}
+td.col-level{min-width:58px;font-variant-numeric:tabular-nums;}
+td.col-benefit{min-width:140px;}
+td.col-creator{min-width:110px;color:var(--on-2);font-family:'Menlo','Consolas',monospace;font-size:11px;}
+td.col-date{min-width:100px;font-variant-numeric:tabular-nums;color:var(--on-2);}
+td.col-status{min-width:110px;}
+td.col-actions{min-width:180px;}
+td.col-note{min-width:150px;max-width:200px;overflow:hidden;text-overflow:ellipsis;color:var(--on-3);font-size:11px;}
 
-    /* ── Earned ── */
-    .earned-card { background:var(--surface-card); border:1px solid var(--divider); border-radius:var(--r-lg); padding:20px; text-align:center; }
-    .earned-label { font-size:13px; color:var(--text-3); margin-bottom:8px; }
-    .earned-val { font-size:clamp(32px,7vw,52px); font-weight:900; color:var(--gold); letter-spacing:-.02em; line-height:1; }
-    .earned-unit { font-size:14px; color:var(--text-2); margin-top:6px; }
+/* ─── Badges ─── */
+.badge{
+  display:inline-flex;align-items:center;
+  padding:3px 9px;border-radius:var(--r-full);
+  font-size:10px;font-weight:700;white-space:nowrap;letter-spacing:.2px;
+}
+.b-rcvd{background:rgba(96,196,232,0.14);   color:#60C4E8;}   /* 已收到：藍 */
+.b-proc{background:rgba(240,160,32,0.14);   color:#F0A020;}   /* 處理中：橘 */
+.b-mat {background:rgba(155,110,255,0.14);  color:#9B6EFF;}   /* 要素材中：紫 */
+.b-matd{background:rgba(236,108,194,0.14);  color:#EC6CC2;}   /* 素材已提供：粉紅 */
+.b-sch {background:rgba(94,240,160,0.14);   color:#3DC47A;}   /* 已安排上架時間：綠 */
+.b-done{background:rgba(0,210,190,0.20);    color:#00D2BE;}   /* 已完成：SWAG 官方 Aquamarine *300 */
+.b-rej {background:rgba(224,48,48,0.14);    color:var(--error);} /* 已拒絕：紅 */
 
-    /* ── Prize list ── */
-    .prize-list { display:grid; gap:8px; }
-    .prize-row { display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--divider); border-radius:var(--r-md); padding:10px 14px; transition:border-color .2s; }
-    .prize-row:hover { border-color:rgba(0,210,190,.3); }
-    .prize-row.top { border-color:rgba(255,213,77,.2); background:rgba(255,213,77,.025); }
-    .prize-em { font-size:18px; }
-    .prize-d { font-size:16px; font-weight:900; flex:1; }
-    .prize-row.top .prize-d { color:var(--gold); }
-    .prize-badge { font-size:11px; font-weight:700; padding:3px 9px; border-radius:var(--r-full); background:rgba(0,210,190,.12); color:var(--primary); white-space:nowrap; letter-spacing:.02em; }
-    .prize-row.top .prize-badge { background:rgba(255,213,77,.15); color:var(--gold); }
-    .prize-miss-row { color:var(--text-3); font-size:13px; }
+/* ─── Quick Actions ─── */
+.quick-actions{display:flex;gap:3px;align-items:center;flex-wrap:nowrap;}
+.q-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:3px 8px;border-radius:var(--r-s);
+  font-size:10px;font-weight:700;font-family:inherit;
+  cursor:pointer;border:1px solid transparent;
+  transition:opacity var(--tr),transform .1s;white-space:nowrap;line-height:1.5;
+}
+.q-btn:hover{opacity:.72;transform:translateY(-1px);}
+.q-btn:active{opacity:.55;transform:translateY(0);}
+.q-proc{background:rgba(240,160,32,.08);border-color:rgba(240,160,32,.3);color:var(--warning);}
+.q-done{background:rgba(0,210,190,.08);border-color:rgba(0,210,190,.3);color:var(--primary);}
+.q-more{background:var(--surface-3);border-color:var(--outline);color:var(--on-3);}
 
-    /* ── Win animation overlay ── */
-    #win-overlay {
-      position: fixed; inset: 0; z-index: 9999;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .diamond-particle {
-      position: fixed;
-      top: 50%; left: 50%;
-      font-size: 24px;
-      pointer-events: none;
-      animation: explode var(--dur) cubic-bezier(.15,.5,.4,1) forwards;
-      opacity: 0;
-      transform-origin: center;
-    }
-    @keyframes explode {
-      0%   { transform: translate(-50%,-50%) translate(0,0) scale(0); opacity: 1; }
-      15%  { opacity: 1; transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(1.3); }
-      70%  { opacity: 1; }
-      100% { transform: translate(-50%,-50%) translate(calc(var(--tx)*2.8), calc(var(--ty)*2.8)) scale(.4) rotate(var(--rot)); opacity: 0; }
-    }
-  </style>
+/* ─── Empty State ─── */
+.empty{text-align:center;padding:60px 24px;color:var(--on-3);}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:.5;}
+.empty-text{font-size:13px;}
+
+/* ─── Modal Overlay ─── */
+#modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:var(--scrim);
+  align-items:center;justify-content:center;
+  z-index:1000;padding:16px;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  animation:fadeIn .15s ease;
+}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+#modal-overlay.open{display:flex;}
+
+.modal{
+  background:var(--surface-2);
+  border:1px solid var(--outline);
+  border-radius:var(--r-2xl);
+  width:100%;max-width:580px;
+  max-height:92vh;overflow-y:auto;
+  padding:26px;position:relative;
+  animation:slideUp .2s cubic-bezier(.16,1,.3,1);
+  scrollbar-width:thin;scrollbar-color:var(--outline) transparent;
+}
+@keyframes slideUp{from{transform:translateY(14px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal::-webkit-scrollbar{width:4px;}
+.modal::-webkit-scrollbar-thumb{background:var(--outline);border-radius:10px;}
+
+/* ─── Modal Add (手動新增) ─── */
+#modal-add-overlay{
+  display:none;position:fixed;inset:0;
+  background:var(--scrim);
+  align-items:center;justify-content:center;
+  z-index:1100;padding:16px;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+#modal-add-overlay.open{display:flex;}
+.modal-add{
+  background:var(--surface-2);border:1px solid var(--outline);
+  border-radius:var(--r-2xl);width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;padding:26px;position:relative;
+  animation:slideUp .2s cubic-bezier(.16,1,.3,1);
+  scrollbar-width:thin;scrollbar-color:var(--outline) transparent;
+}
+.modal-add::-webkit-scrollbar{width:4px;}
+.modal-add::-webkit-scrollbar-thumb{background:var(--outline);border-radius:10px;}
+
+.modal-close{
+  position:absolute;top:12px;right:12px;
+  background:none;border:none;color:var(--on-3);
+  font-size:16px;cursor:pointer;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  border-radius:var(--r-s);transition:background var(--tr),color var(--tr);
+}
+.modal-close:hover{background:var(--surface-3);color:var(--on-1);}
+
+.modal-header{margin-bottom:18px;padding-right:32px;}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:7px;}
+.modal-benefit-tag{
+  display:inline-flex;align-items:center;
+  background:rgba(0,210,190,0.07);border:1px solid rgba(0,210,190,0.18);
+  color:var(--primary);font-size:11px;font-weight:600;
+  padding:3px 10px;border-radius:var(--r-full);
+}
+
+/* Danger zone */
+.danger-zone{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  background:rgba(224,48,48,0.05);border:1px solid rgba(224,48,48,0.18);
+  border-radius:var(--r-l);padding:12px 14px;margin-bottom:14px;
+}
+.danger-title{font-size:10px;font-weight:700;color:var(--error);text-transform:uppercase;letter-spacing:.6px;width:100%;margin-bottom:2px;}
+.btn-danger{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(224,48,48,0.10);border:1px solid rgba(224,48,48,0.3);
+  color:var(--error);border-radius:var(--r-s);padding:0 12px;
+  height:32px;font-size:11px;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:background var(--tr);
+}
+.btn-danger:hover{background:rgba(224,48,48,0.18);}
+.btn-danger-alt{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(240,160,32,0.10);border:1px solid rgba(240,160,32,0.3);
+  color:var(--warning);border-radius:var(--r-s);padding:0 12px;
+  height:32px;font-size:11px;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:background var(--tr);
+}
+.btn-danger-alt:hover{background:rgba(240,160,32,0.18);}
+
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;}
+.field-group{margin-bottom:13px;}
+.field-group.full{grid-column:1/-1;}
+.field-label{
+  font-size:10px;font-weight:700;color:var(--on-3);
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;display:block;
+}
+.field-value{font-size:12px;color:var(--on-1);word-break:break-all;line-height:1.55;}
+.field-value.muted{color:var(--on-3);}
+.field-value.rejected{
+  color:var(--error);background:rgba(224,48,48,0.07);
+  border:1px solid rgba(224,48,48,0.15);
+  border-radius:var(--r-s);padding:6px 10px;font-size:11px;
+}
+.divider{border:none;border-top:1px solid var(--outline-v);margin:16px 0;}
+.edit-section-title{
+  font-size:10px;font-weight:700;color:var(--on-3);
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;
+}
+
+.modal select,
+.modal textarea,
+.modal input[type="text"],
+.modal input[type="number"],
+.modal-add select,
+.modal-add textarea,
+.modal-add input[type="text"],
+.modal-add input[type="number"]{
+  width:100%;
+  background:var(--surface);border:1px solid var(--outline);
+  border-radius:var(--r-s);color:var(--on-1);
+  padding:7px 11px;font-size:12px;font-family:inherit;
+  outline:none;transition:border-color var(--tr),background var(--tr);
+  appearance:none;
+}
+.modal select,
+.modal-add select{
+  height:38px;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23505050' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  padding-right:30px;background-color:var(--surface);
+}
+.modal textarea,
+.modal-add textarea{min-height:72px;resize:vertical;}
+.modal select:focus,
+.modal textarea:focus,
+.modal input:focus,
+.modal-add select:focus,
+.modal-add textarea:focus,
+.modal-add input:focus{border-color:var(--primary);}
+.modal select:hover,
+.modal-add select:hover{background-color:var(--surface-2);}
+
+/* Reject reason box */
+.reject-reason-group{
+  background:rgba(224,48,48,0.04);
+  border:1px solid rgba(224,48,48,0.15);
+  border-radius:var(--r-l);padding:12px 14px;margin-bottom:13px;
+}
+.reject-reason-group .field-label{color:var(--error);}
+
+.modal-actions{display:flex;gap:7px;margin-top:16px;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  border:none;border-radius:var(--r-s);padding:0 14px;height:38px;
+  font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
+  transition:opacity var(--tr),background var(--tr);white-space:nowrap;
+}
+.btn:hover{opacity:.82;}
+.btn:active{opacity:.65;}
+.btn:disabled{opacity:.28;cursor:not-allowed;}
+.btn-primary{background:var(--primary);color:#000;flex:1;}
+.btn-outline{
+  background:transparent;border:1px solid var(--outline);color:var(--on-2);
+}
+.btn-outline:hover{background:var(--surface-3);opacity:1;}
+
+/* ─── Toast ─── */
+#toast{
+  position:fixed;bottom:22px;left:50%;
+  transform:translateX(-50%) translateY(4px);
+  background:var(--surface-3);border:1px solid var(--outline);
+  border-radius:var(--r-l);padding:8px 20px;
+  font-size:12px;font-weight:600;
+  opacity:0;transition:opacity .2s,transform .2s;
+  pointer-events:none;z-index:3000;white-space:nowrap;
+  box-shadow:0 6px 24px rgba(0,0,0,.5);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* Confirm dialog */
+.confirm-dialog{
+  position:fixed;inset:0;
+  background:var(--scrim);
+  display:none;align-items:center;justify-content:center;
+  z-index:2000;padding:16px;
+  backdrop-filter:blur(6px);
+}
+.confirm-dialog.open{display:flex;}
+.confirm-box{
+  background:var(--surface-2);border:1px solid var(--outline);
+  border-radius:var(--r-xl);padding:24px;max-width:380px;width:100%;
+  animation:slideUp .2s cubic-bezier(.16,1,.3,1);
+}
+.confirm-box h3{font-size:15px;font-weight:700;margin-bottom:8px;}
+.confirm-box p{font-size:12px;color:var(--on-2);line-height:1.6;margin-bottom:16px;}
+.confirm-actions{display:flex;gap:7px;}
+.confirm-actions .btn{flex:1;}
+</style>
 </head>
 <body>
 
-  <!-- FOMO Banner -->
-  <div class="fomo-banner" id="fomo-banner"></div>
+<div id="dev-banner">⚠️ Dev Mode — 假資料預覽，非真實後台</div>
 
-  <!-- Top Nav -->
-  <nav class="top-nav">
-    <button class="nav-tab active" data-page="lv0">💎 Lv.0 試抽</button>
-    <button class="nav-tab gold-tab" data-page="lv1">👑 Lv.1+ 實抽</button>
-  </nav>
+<div id="loader">
+  <div class="spinner"></div>
+  <div class="loader-text">VERIFYING</div>
+</div>
 
-  <!-- Win animation layer -->
-  <div id="win-overlay"></div>
+<div id="access-denied">
+  <div style="font-size:44px;margin-bottom:6px;opacity:.4;">🔒</div>
+  <div style="font-size:16px;font-weight:700;">權限不足</div>
+  <div style="font-size:12px;color:var(--on-3);margin-top:3px;">此後台僅限擁有 owner 身份的帳號使用</div>
+</div>
 
-  <!-- ═══ LV.0 PAGE ═══ -->
-  <div class="page active" id="page-lv0">
-    <div class="hero lv0">
-      <div class="hero-badge">免費試抽</div>
-      <h1>每日免費抽獎<br><span style="color:var(--primary)">鑽石存入寶箱</span></h1>
-      <p class="hero-sub">累積鑽石，升級 Lv.1 一鍵全領！</p>
+<div id="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">V</div>
+      <div class="topbar-title">VIP 預約後台</div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-subtitle">VIP 預約管理</div>
+      <button class="btn-refresh" onclick="loadData()" title="重新整理資料">↺ 重整</button>
     </div>
-    <div class="marquee-strip"><span class="marquee-inner" id="marqueeEl0"></span></div>
-    <div class="inner">
+    <div class="topbar-right">
+      <button class="btn-add" onclick="openAddModal()">＋ 手動新增</button>
+      <div class="topbar-user-info">
+        <div class="topbar-user-name" id="admin-name">—</div>
+        <div class="topbar-user-role">✦ Owner</div>
+      </div>
+      <div class="topbar-avatar" id="admin-avatar">?</div>
+    </div>
+  </div>
 
-      <!-- 抽獎 -->
-      <div class="draw-section">
-        <p class="draw-desc">每日免費試抽一次，中獎鑽石封存至寶箱，升級後即可全部提領。</p>
-        <button class="cta cta-teal" id="drawLv0">⚡ 立即抽獎</button>
-        <div class="result" id="result-lv0">點擊上方按鈕開始今日抽獎！</div>
+  <!-- Benefit Tabs -->
+  <div class="benefit-tabs-wrap">
+    <button class="tabs-scroll-btn left hidden" id="tabs-arrow-left" onclick="scrollTabs(-1)" aria-label="向左">‹</button>
+    <div class="benefit-tabs" id="benefit-tabs" onscroll="updateTabsArrow()">
+      <button class="tab-btn active" data-benefit="" onclick="selectTab(this)">全部 <span class="tab-count" id="tab-count-all">—</span></button>
+      <button class="tab-btn" data-benefit="大神贊助" onclick="selectTab(this)">大神贊助 <span class="tab-count" id="tab-count-0">—</span></button>
+      <button class="tab-btn" data-benefit="女神聚會" onclick="selectTab(this)">女神聚會 <span class="tab-count" id="tab-count-1">—</span></button>
+      <button class="tab-btn" data-benefit="訂製小鈴噹通知" onclick="selectTab(this)">訂製小鈴噹通知 <span class="tab-count" id="tab-count-2">—</span></button>
+      <button class="tab-btn" data-benefit="訂製搜尋框文字" onclick="selectTab(this)">訂製搜尋框文字 <span class="tab-count" id="tab-count-3">—</span></button>
+      <button class="tab-btn" data-benefit="訂製專屬徽章" onclick="selectTab(this)">訂製專屬徽章 <span class="tab-count" id="tab-count-4">—</span></button>
+      <button class="tab-btn" data-benefit="蓋板創作者封面" onclick="selectTab(this)">蓋板創作者封面 <span class="tab-count" id="tab-count-5">—</span></button>
+      <button class="tab-btn" data-benefit="訂製專屬禮物" onclick="selectTab(this)">訂製專屬禮物 <span class="tab-count" id="tab-count-6">—</span></button>
+      <button class="tab-btn" data-benefit="專屬直播欄位廣告" onclick="selectTab(this)">專屬直播欄位廣告 <span class="tab-count" id="tab-count-7">—</span></button>
+      <button class="tab-btn" data-benefit="CEO午餐" onclick="selectTab(this)">CEO午餐 <span class="tab-count" id="tab-count-8">—</span></button>
+    </div>
+    <button class="tabs-scroll-btn right" id="tabs-arrow-right" onclick="scrollTabs(1)" aria-label="向右">›</button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item stat-all active" onclick="filterByStatus('')">
+      <div class="stat-num" id="s-all">—</div><div class="stat-label">全部</div>
+    </div>
+    <div class="stat-item stat-rcvd" onclick="filterByStatus('已收到')">
+      <div class="stat-num" id="s-rcvd">—</div><div class="stat-label">已收到</div>
+    </div>
+    <div class="stat-item stat-proc" onclick="filterByStatus('處理中')">
+      <div class="stat-num" id="s-proc">—</div><div class="stat-label">處理中</div>
+    </div>
+    <div class="stat-item stat-mat" onclick="filterByStatus('要素材中')">
+      <div class="stat-num" id="s-mat">—</div><div class="stat-label">要素材中</div>
+    </div>
+    <div class="stat-item stat-matd" onclick="filterByStatus('素材已提供')">
+      <div class="stat-num" id="s-matd">—</div><div class="stat-label">素材已提供</div>
+    </div>
+    <div class="stat-item stat-sch" onclick="filterByStatus('已安排上架時間')">
+      <div class="stat-num" id="s-sch">—</div><div class="stat-label">已安排</div>
+    </div>
+    <div class="stat-item stat-done" onclick="filterByStatus('已完成')">
+      <div class="stat-num" id="s-done">—</div><div class="stat-label">已完成</div>
+    </div>
+    <div class="stat-item stat-rej" onclick="filterByStatus('已拒絕')">
+      <div class="stat-num" id="s-rej">—</div><div class="stat-label">已拒絕</div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <input id="f-search" type="text" placeholder="搜尋用戶名 / 主播帳號 / 關鍵字" oninput="applyFilter()">
+    <span class="count-label" id="count-label"></span>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortBy('submitted_at')" data-col="submitted_at">提交時間</th>
+          <th onclick="sortBy('username')" data-col="username">用戶名</th>
+          <th onclick="sortBy('level')" data-col="level">等級</th>
+          <th onclick="sortBy('benefit')" data-col="benefit">福利項目</th>
+          <th class="no-sort">主播帳號</th>
+          <th onclick="sortBy('date')" data-col="date">預約日期</th>
+          <th onclick="sortBy('status')" data-col="status">狀態</th>
+          <th class="no-sort">快速操作</th>
+          <th onclick="sortBy('admin_note')" data-col="admin_note">後台備註</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none;">
+      <div class="empty-icon">📭</div>
+      <div class="empty-text">目前沒有符合條件的預約紀錄</div>
+    </div>
+  </div>
+</div>
+
+<!-- Record Modal -->
+<div id="modal-overlay" onclick="if(event.target.id==='modal-overlay')closeModal()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <button class="modal-close" onclick="closeModal()" aria-label="關閉">✕</button>
+    <div class="modal-header">
+      <div class="modal-title" id="m-title">預約詳情</div>
+      <div class="modal-benefit-tag" id="m-benefit-tag"></div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="danger-zone" id="d-danger">
+      <div class="danger-title">⚠ 危險操作</div>
+      <button class="btn-danger" onclick="confirmAction('ban')">🚫 違規拒絕（不得重新預約）</button>
+      <button class="btn-danger-alt" onclick="confirmAction('delete')">🗑 刪除紀錄（允許重新預約）</button>
+    </div>
+
+    <div class="field-grid">
+      <div class="field-group"><span class="field-label">用戶名</span><div class="field-value" id="d-user"></div></div>
+      <div class="field-group"><span class="field-label">等級</span><div class="field-value" id="d-level"></div></div>
+      <div class="field-group"><span class="field-label">提交時間</span><div class="field-value" id="d-time"></div></div>
+      <div class="field-group"><span class="field-label">現在狀態</span><div class="field-value" id="d-status"></div></div>
+    </div>
+    <div id="d-extra"></div>
+    <div class="field-group"><span class="field-label">用戶備註</span><div class="field-value" id="d-content"></div></div>
+
+    <!-- 拒絕原因顯示（已拒絕時顯示） -->
+    <div id="d-reject-display" style="display:none;">
+      <div class="field-group">
+        <span class="field-label">拒絕原因（用戶可見）</span>
+        <div class="field-value rejected" id="d-reject-reason-text"></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="edit-section-title">編輯</div>
+
+    <!-- 上架時間（小鈴噹 / 搜尋框 / 徽章 / 封面 / 禮物 / 廣告 才顯示） -->
+    <div class="field-group" id="edit-date-group" style="display:none;">
+      <span class="field-label">上架時間（後台填寫，用戶可見）</span>
+      <input type="text" id="edit-date" placeholder="YYYY-MM-DD 或 處理中">
+    </div>
+
+    <!-- 女神聚會：主播出席狀態 -->
+    <div class="field-group" id="edit-party-group" style="display:none;">
+      <span class="field-label">主播出席狀態</span>
+      <select id="edit-host-confirmed">
+        <option value="">尚未確認</option>
+        <option value="true">✅ 主播同意出席</option>
+        <option value="false">❌ 主播拒絕出席</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">更新狀態</span>
+      <select id="edit-status" onchange="onStatusChange()">
+        <option value="已收到">已收到</option>
+        <option value="處理中">處理中</option>
+        <option value="要素材中">要素材中</option>
+        <option value="素材已提供">素材已提供</option>
+        <option value="已安排上架時間">已安排上架時間</option>
+        <option value="已完成">已完成</option>
+        <option value="已拒絕">已拒絕</option>
+      </select>
+    </div>
+
+    <!-- 拒絕原因輸入（選已拒絕時顯示） -->
+    <div class="reject-reason-group" id="reject-reason-group" style="display:none;">
+      <span class="field-label">拒絕原因（用戶可見）</span>
+      <textarea id="edit-reject-reason" placeholder="請輸入拒絕原因，用戶提交後可在預約系統看到此說明..." style="min-height:64px;"></textarea>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">後台備註（用戶不可見）</span>
+      <textarea id="edit-note" placeholder="輸入內部備註..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="btn-save" onclick="saveUpdate()">儲存變更</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<div id="modal-add-overlay" onclick="if(event.target.id==='modal-add-overlay')closeAddModal()">
+  <div class="modal-add" role="dialog" aria-modal="true">
+    <button class="modal-close" onclick="closeAddModal()" aria-label="關閉">✕</button>
+    <div class="modal-header">
+      <div class="modal-title">手動新增預約紀錄</div>
+      <div style="font-size:11px;color:var(--on-3);margin-top:4px;">由管理員代為建立，寫入 Firestore</div>
+    </div>
+
+    <!-- Step 1: 選福利 -->
+    <div class="field-group">
+      <span class="field-label">福利項目 *</span>
+      <select id="add-benefit" onchange="onAddBenefitChange()">
+        <option value="">請先選擇福利</option>
+        <option>大神贊助</option><option>女神聚會</option>
+        <option>訂製小鈴噹通知</option><option>訂製搜尋框文字</option>
+        <option>訂製專屬徽章</option><option>蓋板創作者封面</option>
+        <option>訂製專屬禮物</option><option>專屬直播欄位廣告</option>
+        <option>CEO午餐</option>
+      </select>
+    </div>
+
+    <!-- 基本用戶資料（永遠顯示，選完福利後才出現） -->
+    <div id="add-base-fields" style="display:none;">
+      <hr class="divider" style="margin:10px 0 14px;">
+      <div class="field-grid">
+        <div class="field-group">
+          <span class="field-label">用戶 ID *</span>
+          <input type="text" id="add-user-id" placeholder="user_id">
+        </div>
+        <div class="field-group">
+          <span class="field-label">用戶名稱</span>
+          <input type="text" id="add-username" placeholder="displayName">
+        </div>
+        <div class="field-group">
+          <span class="field-label">等級</span>
+          <input type="number" id="add-level" placeholder="70" min="0" max="200">
+        </div>
       </div>
 
-      <!-- 我的鑽石 + 倒數 + 升級（合一） -->
-      <div class="chest-card">
-        <div class="chest-top">
-          <div class="chest-stat">
-            <div class="chest-stat-label">💎 我的鑽石</div>
-            <div class="chest-stat-val gold" id="chest-val">0</div>
-            <div class="chest-stat-unit">鑽石</div>
+      <!-- 福利對應欄位區塊 -->
+
+      <!-- 大神贊助 / 女神聚會 / 訂製搜尋框文字：只需主播 + 日期 -->
+      <div id="add-sect-swagger-date" style="display:none;">
+        <div class="field-grid">
+          <div class="field-group">
+            <span class="field-label">主播帳號 *</span>
+            <input type="text" id="add-swagger" placeholder="swagger_id（不含 @）">
           </div>
-          <div class="chest-stat">
-            <div class="chest-stat-label">⏰ 寶箱清空倒數</div>
-            <div class="chest-stat-val countdown" id="countdown-lv0">計算中…</div>
+          <div class="field-group">
+            <span class="field-label">上架日期</span>
+            <input type="text" id="add-date" placeholder="YYYY-MM-DD 或 處理中">
           </div>
         </div>
-        <!-- 升級區塊：有鑽石才顯示 -->
-        <div class="chest-upgrade" id="chest-upgrade">
-          <div class="chest-upgrade-lbl">🎁 升級 Lv.1 即可一鍵提領全部鑽石！</div>
-          <button class="cta cta-gold">🚀 升級 Lv.1 立即領取</button>
+      </div>
+
+      <!-- 訂製小鈴噹通知 -->
+      <div id="add-sect-bell" style="display:none;">
+        <div class="field-grid">
+          <div class="field-group">
+            <span class="field-label">主播帳號 *</span>
+            <input type="text" id="add-swagger-bell" placeholder="swagger_id（不含 @）">
+          </div>
+          <div class="field-group">
+            <span class="field-label">上架日期</span>
+            <input type="text" id="add-date-bell" placeholder="YYYY-MM-DD 或 處理中">
+          </div>
+          <div class="field-group full">
+            <span class="field-label">發送文字（最多20字）</span>
+            <input type="text" id="add-bell-msg" placeholder="小鈴噹通知文字" maxlength="20">
+          </div>
+          <div class="field-group" style="display:flex;align-items:center;gap:8px;padding-top:20px;">
+            <input type="checkbox" id="add-bell-brand" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer;">
+            <label for="add-bell-brand" style="font-size:12px;color:var(--on-2);cursor:pointer;">是否冠名</label>
+          </div>
         </div>
       </div>
 
-      <!-- 全站總池 -->
-      <div class="pool-card" id="pool-card-lv0">
-        <div class="pool-card-title">🌐 全站總池剩餘<button class="info-btn" onclick="openPrizeModal()">!</button></div>
-        <div class="pool-num-row">
-          <span class="pool-main" id="pool-remain-lv0">10,000,000</span>
-          <span class="pool-side">已領走 <b id="pool-spent-lv0">0</b></span>
+      <!-- 訂製專屬徽章 -->
+      <div id="add-sect-badge" style="display:none;">
+        <div class="field-grid">
+          <div class="field-group">
+            <span class="field-label">徽章名稱 *（最多8字）</span>
+            <input type="text" id="add-badge-name" placeholder="徽章名稱" maxlength="8">
+          </div>
+          <div class="field-group">
+            <span class="field-label">元素或文字（最多20字）</span>
+            <input type="text" id="add-badge-elem" placeholder="元素或文字描述" maxlength="20">
+          </div>
+          <div class="field-group full">
+            <span class="field-label">示意圖（雲端網址）</span>
+            <input type="text" id="add-badge-url" placeholder="https://...">
+          </div>
+          <div class="field-group full">
+            <span class="field-label">贈與帳號（每行一個 ID）</span>
+            <textarea id="add-badge-targets" placeholder="每行一個帳號 ID" style="min-height:56px;"></textarea>
+          </div>
         </div>
-        <div class="pool-bar-track"><div class="pool-bar-fill" id="pool-bar-lv0" style="width:100%"></div></div>
       </div>
 
-    </div>
-  </div>
-
-  <!-- ═══ LV.1+ PAGE ═══ -->
-  <div class="page" id="page-lv1">
-    <div class="hero lv1">
-      <div class="hero-badge">Lv.1+ 專屬</div>
-      <h1>每日免費實抽<br><span style="color:var(--gold)">鑽石即時入帳</span></h1>
-      <p class="hero-sub">中獎鑽石直接到帳，無需等待！</p>
-    </div>
-    <div class="marquee-strip"><span class="marquee-inner" id="marqueeEl1"></span></div>
-    <div class="inner">
-
-      <!-- 抽獎 -->
-      <div class="draw-section">
-        <p class="draw-desc">每日免費實抽一次，中獎鑽石即時入帳，從全站總池即時扣除。</p>
-        <button class="cta cta-gold" id="drawLv1">💰 立即抽獎</button>
-        <div class="result" id="result-lv1">點擊上方按鈕開始今日抽獎！</div>
-      </div>
-
-      <!-- 已領取 -->
-      <div class="earned-card">
-        <div class="earned-label">已領取鑽石總計</div>
-        <div class="earned-val" id="earned-val">0</div>
-        <div class="earned-unit">鑽石</div>
-      </div>
-
-      <!-- 全站總池 -->
-      <div class="pool-card" id="pool-card-lv1">
-        <div class="pool-card-title">🌐 全站總池剩餘<button class="info-btn" onclick="openPrizeModal()">!</button></div>
-        <div class="pool-num-row">
-          <span class="pool-main" id="pool-remain-lv1">10,000,000</span>
-          <span class="pool-side">已領走 <b id="pool-spent-lv1">0</b></span>
+      <!-- 蓋板創作者封面 -->
+      <div id="add-sect-cover" style="display:none;">
+        <div class="field-grid">
+          <div class="field-group">
+            <span class="field-label">主播帳號 *</span>
+            <input type="text" id="add-swagger-cover" placeholder="swagger_id（不含 @）">
+          </div>
+          <div class="field-group full">
+            <span class="field-label">客製化文案（最多20字）</span>
+            <input type="text" id="add-cover-copy" placeholder="封面文案" maxlength="20">
+          </div>
+          <div class="field-group" style="display:flex;align-items:center;gap:8px;padding-top:20px;">
+            <input type="checkbox" id="add-cover-brand" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer;">
+            <label for="add-cover-brand" style="font-size:12px;color:var(--on-2);cursor:pointer;">是否冠名</label>
+          </div>
         </div>
-        <div class="pool-bar-track"><div class="pool-bar-fill" id="pool-bar-lv1" style="width:100%"></div></div>
       </div>
 
-    </div>
-  </div>
-
-  <!-- 🛠 Dev Simulator -->
-  <div style="position:fixed;bottom:16px;right:16px;z-index:8888;background:#1a1a1a;border:1px solid #555;border-radius:12px;padding:12px 14px;width:210px;box-shadow:0 4px 20px rgba(0,0,0,.5);">
-    <div style="font-size:11px;font-weight:700;color:#9B9B9B;letter-spacing:.08em;margin-bottom:8px;">🛠 模擬剩餘鑽石</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-      <button onclick="simPool(2000000)" style="flex:1;background:#2a2a2a;border:1px solid #555;color:#C8C8C8;border-radius:6px;padding:5px 4px;font-size:11px;cursor:pointer;">20%</button>
-      <button onclick="simPool(1000000)" style="flex:1;background:#2a2a2a;border:1px solid #555;color:#C8C8C8;border-radius:6px;padding:5px 4px;font-size:11px;cursor:pointer;">10%</button>
-      <button onclick="simPool(500000)"  style="flex:1;background:#2a2a2a;border:1px solid #555;color:#C8C8C8;border-radius:6px;padding:5px 4px;font-size:11px;cursor:pointer;">5%</button>
-      <button onclick="simPool(10000000)" style="flex:1;background:#2a2a2a;border:1px solid #555;color:#00D2BE;border-radius:6px;padding:5px 4px;font-size:11px;cursor:pointer;">重置</button>
-    </div>
-    <div style="display:flex;gap:6px;align-items:center;">
-      <input id="simInput" type="number" min="0" max="10000000" placeholder="自訂數量" style="flex:1;background:#111;border:1px solid #444;border-radius:6px;padding:5px 8px;color:#fff;font-size:12px;width:0;">
-      <button onclick="simPool(+document.getElementById('simInput').value)" style="background:#00D2BE;border:none;color:#191919;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;">套用</button>
-    </div>
-  </div>
-
-  <!-- Prize Modal -->
-  <div class="modal-overlay" id="prizeModal" onclick="closePrizeModal()">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <span>🏆 獎項一覽</span>
-        <button class="modal-close" onclick="closePrizeModal()">✕</button>
+      <!-- 訂製專屬禮物 -->
+      <div id="add-sect-gift" style="display:none;">
+        <div class="field-grid">
+          <div class="field-group">
+            <span class="field-label">禮物名稱 *（最多20字）</span>
+            <input type="text" id="add-gift-name" placeholder="禮物名稱" maxlength="20">
+          </div>
+          <div class="field-group">
+            <span class="field-label">禮物圖上文字（最多8字）</span>
+            <input type="text" id="add-gift-txt" placeholder="禮物圖上文字" maxlength="8">
+          </div>
+          <div class="field-group">
+            <span class="field-label">禮物鑽石數</span>
+            <input type="number" id="add-gift-dia" placeholder="0" min="0">
+          </div>
+          <div class="field-group" style="display:flex;align-items:center;gap:8px;padding-top:20px;">
+            <input type="checkbox" id="add-gift-brand" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer;">
+            <label for="add-gift-brand" style="font-size:12px;color:var(--on-2);cursor:pointer;">是否冠名</label>
+          </div>
+          <div class="field-group" style="display:flex;align-items:center;gap:8px;padding-top:6px;">
+            <input type="checkbox" id="add-gift-photo" onchange="toggleAddGiftSwagger()" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer;">
+            <label for="add-gift-photo" style="font-size:12px;color:var(--on-2);cursor:pointer;">需要主播照片作為素材</label>
+          </div>
+          <div class="field-group full" id="add-gift-swagger-wrap" style="display:none;">
+            <span class="field-label">主播帳號</span>
+            <input type="text" id="add-swagger-gift" placeholder="swagger_id（不含 @）">
+          </div>
+        </div>
       </div>
-      <div class="prize-list" id="prize-list-modal"></div>
+
+      <!-- 專屬直播欄位廣告 -->
+      <div id="add-sect-ad" style="display:none;">
+        <div class="field-grid">
+          <div class="field-group">
+            <span class="field-label">主播帳號 *</span>
+            <input type="text" id="add-swagger-ad" placeholder="swagger_id（不含 @）">
+          </div>
+          <div class="field-group full">
+            <span class="field-label">客製化文案（最多20字）</span>
+            <input type="text" id="add-ad-copy" placeholder="廣告文案" maxlength="20">
+          </div>
+          <div class="field-group" style="display:flex;align-items:center;gap:8px;padding-top:20px;">
+            <input type="checkbox" id="add-ad-brand" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer;">
+            <label for="add-ad-brand" style="font-size:12px;color:var(--on-2);cursor:pointer;">是否冠名</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- CEO午餐 -->
+      <div id="add-sect-lunch" style="display:none;">
+        <div style="font-size:11px;color:var(--primary);margin-bottom:10px;">* 填寫三個優先日期</div>
+        <div class="field-grid">
+          <div class="field-group">
+            <span class="field-label">優先日期 1</span>
+            <input type="text" id="add-lunch-1" placeholder="YYYY-MM-DD">
+          </div>
+          <div class="field-group">
+            <span class="field-label">優先日期 2</span>
+            <input type="text" id="add-lunch-2" placeholder="YYYY-MM-DD">
+          </div>
+          <div class="field-group">
+            <span class="field-label">優先日期 3</span>
+            <input type="text" id="add-lunch-3" placeholder="YYYY-MM-DD">
+          </div>
+        </div>
+      </div>
+
+      <!-- 初始狀態 + 備註（永遠顯示） -->
+      <hr class="divider" style="margin:12px 0;">
+      <div class="field-grid">
+        <div class="field-group">
+          <span class="field-label">初始狀態</span>
+          <select id="add-status">
+            <option value="已收到">已收到</option>
+            <option value="處理中">處理中</option>
+            <option value="要素材中">要素材中</option>
+            <option value="素材已提供">素材已提供</option>
+            <option value="已安排上架時間">已安排上架時間</option>
+            <option value="已完成">已完成</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <span class="field-label">備註（管理員用）</span>
+        <textarea id="add-content" placeholder="備註事項..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeAddModal()">取消</button>
+      <button class="btn btn-primary" id="btn-add-submit" onclick="submitAdd()">＋ 建立紀錄</button>
     </div>
   </div>
+</div>
 
-  <script>
-    /* ── Prize pools ── */
-    const prizesLv0 = [
-      { d:10000, odds:0.05, em:'👑' },
-      { d:5000,  odds:0.3,  em:'💫' },
-      { d:3000,  odds:2.5,  em:'🔥' },
-      { d:1000,  odds:3,    em:'✨' },
-      { d:500,   odds:8,    em:'⭐' },
-      { d:200,   odds:10,   em:'🌟' },
-      { d:100,   odds:4,    em:'💎' },
-      { d:50,    odds:2,    em:'💎' },
-    ];
-    const prizesLv1 = [
-      { d:10000, odds:0.01, em:'👑' },
-      { d:5000,  odds:0.05, em:'💫' },
-      { d:3000,  odds:0.5,  em:'🔥' },
-      { d:1000,  odds:1,    em:'✨' },
-      { d:500,   odds:5,    em:'⭐' },
-      { d:200,   odds:10,   em:'🌟' },
-      { d:100,   odds:20,   em:'💎' },
-      { d:50,    odds:30,   em:'💎' },
-    ];
-    const LV0_MISS = 69.6, LV1_MISS = 599;
-    const TOTAL = 10000000;
+<!-- Confirm Dialog -->
+<div class="confirm-dialog" id="confirm-dialog">
+  <div class="confirm-box">
+    <h3 id="confirm-title">確認操作</h3>
+    <p id="confirm-desc"></p>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" onclick="closeConfirm()">取消</button>
+      <button class="btn" id="confirm-ok-btn" onclick="executeConfirm()">確認</button>
+    </div>
+  </div>
+</div>
 
-    let spent = 0, chest = 0, earned = 0, lv0DrawCount = 0;
-    const lv0Ref = { v:0 }, lv1Ref = { v:0 };
-    const fmt = n => Math.round(n).toLocaleString('zh-Hant');
+<div id="toast" role="status" aria-live="polite"></div>
 
-    function weightedDraw(prizes, missPool) {
-      const tw = prizes.reduce((s,p)=>s+p.odds,0);
-      const r  = Math.random()*(tw+missPool);
-      if (r>tw) return 0;
-      let c=0; for(const p of prizes){c+=p.odds;if(r<=c)return p.d;} return 0;
+<script>
+const BFF_BASE = 'https://vip-reservation-bff-905468082258.asia-east1.run.app';
+let _token = null, _apiBase = BFF_BASE, _retry = null;
+let _all = [], _docId = null;
+let _sortCol = 'submitted_at', _sortDir = -1;
+let _filterBenefit = '', _filterStatus = '';
+let _confirmAction = null;
+
+const SC = {
+  '已收到':'b-rcvd','處理中':'b-proc','要素材中':'b-mat',
+  '素材已提供':'b-matd','已安排上架時間':'b-sch','已完成':'b-done','已拒絕':'b-rej'
+};
+const STATUS_LIST = ['已收到','處理中','要素材中','素材已提供','已安排上架時間','已完成','已拒絕'];
+const BENEFITS = ['大神贊助','女神聚會','訂製小鈴噹通知','訂製搜尋框文字','訂製專屬徽章','蓋板創作者封面','訂製專屬禮物','專屬直播欄位廣告','CEO午餐'];
+
+/* ─── iframe / token ─── */
+function _ready(){ window.parent.postMessage({type:'IFRAME_READY'},'*'); }
+window.addEventListener('message', function(e){
+  const d = e.data||{};
+  if(d.type==='SET_DOMAIN_CONFIG'&&d.apiUrlPrefix) _apiBase=d.apiUrlPrefix;
+  if(d.type==='SET_TOKEN'&&d.token&&d.token!==_token){
+    _token=d.token; clearInterval(_retry); _initAdmin();
+  }
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(document.getElementById('confirm-dialog').classList.contains('open')) closeConfirm();
+    else if(document.getElementById('modal-add-overlay').classList.contains('open')) closeAddModal();
+    else if(document.getElementById('modal-overlay').classList.contains('open')) closeModal();
+  }
+});
+
+const _dev = window.self===window.top;
+document.addEventListener('DOMContentLoaded',function(){
+  if(_dev){ document.getElementById('dev-banner').style.display='block'; _loadMock(); return; }
+  setTimeout(_ready,100);
+  _retry=setInterval(()=>{ if(!_token)_ready(); },3000);
+});
+
+function _loadMock(){
+  document.getElementById('loader').classList.add('hide');
+  _setAdmin('dev_admin');
+  document.getElementById('main').classList.add('show');
+  _all=[
+    {id:'m1',username:'關稅帝君',level:90,benefit:'大神贊助',swagger_id:'streamer_a',date:'2026-05-10',status:'已收到',admin_note:'',reject_reason:'',content:'希望在週末上架',submitted_at:'2026-04-26T10:00:00'},
+    {id:'m2',username:'vip_user_88',level:75,benefit:'訂製專屬徽章',swagger_id:'',date:'',status:'處理中',admin_note:'已聯繫設計師',reject_reason:'',content:'風格參考附圖',submitted_at:'2026-04-25T15:30:00'},
+    {id:'m3',username:'test_user',level:60,benefit:'訂製小鈴噹通知',swagger_id:'ladyyuan',date:'2026-05-04',status:'已完成',admin_note:'',reject_reason:'',content:'',submitted_at:'2026-04-24T08:20:00'},
+    {id:'m4',username:'big_spender',level:80,benefit:'蓋板創作者封面',swagger_id:'chloeswag',date:'',status:'要素材中',admin_note:'等主播回傳照片',reject_reason:'',content:'封面要有粉色系',submitted_at:'2026-04-23T11:00:00'},
+    {id:'m5',username:'super_vip',level:90,benefit:'CEO午餐',swagger_id:'',date:'2026-05-15',status:'已安排上架時間',admin_note:'',reject_reason:'',content:'',submitted_at:'2026-04-22T09:00:00'},
+    {id:'m6',username:'rule_breaker',level:70,benefit:'女神聚會',swagger_id:'',date:'2026-04',status:'已拒絕',admin_note:'帳號外借確認',reject_reason:'查獲帳號外借行為，依規定取消資格，60天內不得再次申請。',content:'',submitted_at:'2026-04-20T16:00:00'},
+  ];
+  applyFilter();
+  setTimeout(updateTabsArrow, 50);
+}
+
+function _setAdmin(name){
+  document.getElementById('admin-name').innerText=name;
+  document.getElementById('admin-avatar').innerText=(name||'?')[0].toUpperCase();
+}
+function _fetch(path,opts={}){
+  if(_dev) return Promise.resolve(new Response(JSON.stringify({ok:true}),{status:200}));
+  return fetch(_apiBase+path,{...opts,headers:{'Authorization':'Bearer '+_token,'Content-Type':'application/json',...(opts.headers||{})}});
+}
+
+async function _initAdmin(){
+  try{
+    const res=await _fetch('/admin/me');
+    if(res.status===403||res.status===401){
+      document.getElementById('loader').classList.add('hide');
+      document.getElementById('access-denied').classList.add('show'); return;
     }
-    function drawLv0() {
-      lv0DrawCount++;
-      return weightedDraw(prizesLv0, lv0DrawCount<=3 ? 20 : LV0_MISS);
+    if(!res.ok) throw new Error();
+    const me=await res.json();
+    _setAdmin(me.displayName||me.username);
+    document.getElementById('loader').classList.add('hide');
+    document.getElementById('main').classList.add('show');
+    await loadData();
+    setTimeout(updateTabsArrow, 50);
+  }catch(_){
+    document.getElementById('loader').classList.add('hide');
+    document.getElementById('access-denied').classList.add('show');
+  }
+}
+
+async function loadData(){
+  if(_dev) return;
+  document.getElementById('tbody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--on-3);padding:40px;">載入中...</td></tr>';
+  document.getElementById('empty').style.display='none';
+  try{
+    const res=await _fetch('/admin/reservations');
+    if(!res.ok) throw new Error();
+    _all=await res.json();
+    applyFilter();
+  }catch(_){
+    document.getElementById('tbody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--error);padding:40px;">載入失敗，請按重整</td></tr>';
+  }
+}
+
+/* ─── Tab Arrow ─── */
+function scrollTabs(dir){
+  const tabs = document.getElementById('benefit-tabs');
+  if (!tabs) return;
+  tabs.scrollBy({ left: dir * 200, behavior: 'smooth' });
+}
+function updateTabsArrow(){
+  const tabs  = document.getElementById('benefit-tabs');
+  const left  = document.getElementById('tabs-arrow-left');
+  const right = document.getElementById('tabs-arrow-right');
+  if (!tabs) return;
+  const atStart = tabs.scrollLeft <= 2;
+  const atEnd   = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 2;
+  if (left)  left.classList.toggle('hidden', atStart);
+  if (right) right.classList.toggle('hidden', atEnd);
+}
+
+/* ─── Tab ─── */
+function selectTab(btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  _filterBenefit=btn.dataset.benefit;
+  applyFilter();
+}
+
+/* ─── Status / stat bar ─── */
+function filterByStatus(s){
+  _filterStatus=s;
+  _syncStatsActive();
+  applyFilter();
+}
+function _syncStatsActive(){
+  const map={'':'stat-all','已收到':'stat-rcvd','處理中':'stat-proc','要素材中':'stat-mat','素材已提供':'stat-matd','已安排上架時間':'stat-sch','已完成':'stat-done','已拒絕':'stat-rej'};
+  document.querySelectorAll('.stat-item').forEach(el=>el.classList.remove('active'));
+  const cls=map[_filterStatus]||'stat-all';
+  document.querySelector('.'+cls)?.classList.add('active');
+}
+
+/* ─── Stats ─── */
+function _updateStats(base){
+  const c=s=>base.filter(r=>r.status===s).length;
+  document.getElementById('s-all').innerText=base.length;
+  document.getElementById('s-rcvd').innerText=c('已收到');
+  document.getElementById('s-proc').innerText=c('處理中');
+  document.getElementById('s-mat').innerText=c('要素材中');
+  document.getElementById('s-matd').innerText=c('素材已提供');
+  document.getElementById('s-sch').innerText=c('已安排上架時間');
+  document.getElementById('s-done').innerText=c('已完成');
+  document.getElementById('s-rej').innerText=c('已拒絕');
+
+  // Tab counts (all statuses)
+  const tAll=document.getElementById('tab-count-all');
+  if(tAll) tAll.innerText=_all.length;
+  BENEFITS.forEach((b,i)=>{
+    const el=document.getElementById('tab-count-'+i);
+    if(el) el.innerText=_all.filter(r=>r.benefit===b).length;
+  });
+}
+
+function sortBy(col){
+  _sortDir=(_sortCol===col)?_sortDir*-1:-1; _sortCol=col;
+  document.querySelectorAll('thead th').forEach(th=>{
+    th.classList.remove('sort-asc','sort-desc');
+    if(th.dataset.col===col) th.classList.add(_sortDir===1?'sort-asc':'sort-desc');
+  });
+  applyFilter();
+}
+
+function applyFilter(){
+  const search=document.getElementById('f-search').value.trim().toLowerCase();
+  // Stats based on currently-selected benefit tab (without status filter)
+  const baseForStats=_filterBenefit?_all.filter(r=>r.benefit===_filterBenefit):_all;
+  _updateStats(baseForStats);
+
+  let rows=_all.filter(r=>{
+    if(_filterBenefit&&r.benefit!==_filterBenefit) return false;
+    if(_filterStatus&&r.status!==_filterStatus) return false;
+    if(search&&![r.username,r.swagger_id,r.user_id,r.benefit].join(' ').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  rows=[...rows].sort((a,b)=>{
+    if(_sortCol==='level') return _sortDir*((+a.level||0)-(+b.level||0));
+    return _sortDir*String(a[_sortCol]||'').localeCompare(String(b[_sortCol]||''),'zh-TW',{numeric:true});
+  });
+  document.getElementById('count-label').innerText=`共 ${rows.length} 筆`;
+  _render(rows);
+}
+
+function _render(rows){
+  const tbody=document.getElementById('tbody');
+  const empty=document.getElementById('empty');
+  if(!rows.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=rows.map(r=>{
+    const isNew=r.status==='已收到';
+    const time=(r.submitted_at||'').replace('T',' ').slice(0,16)||'—';
+    return `<tr class="${isNew?'row-new':''}" onclick="openRecord('${r.id}')">
+      <td class="col-time">${time}</td>
+      <td class="col-user" title="${_e(r.username||r.user_id||'')}">${_e(r.username||r.user_id||'—')}</td>
+      <td class="col-level" style="color:${isNew?'var(--primary)':'var(--on-2)'};">LV.${r.level||'—'}</td>
+      <td class="col-benefit">${_e(r.benefit)}</td>
+      <td class="col-creator">${_e(r.swagger_id||'—')}</td>
+      <td class="col-date">${_e(r.date||'—')}</td>
+      <td class="col-status"><span class="badge ${SC[r.status]||'b-rcvd'}">${_e(r.status)}</span></td>
+      <td class="col-actions" onclick="event.stopPropagation()">${_quickBtns(r)}</td>
+      <td class="col-note" title="${_e(r.admin_note||'')}">${_e(r.admin_note||'—')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function _quickBtns(r){
+  if(r.status==='已收到') return `<div class="quick-actions">
+    <button class="q-btn q-proc" onclick="quickUpdate('${r.id}','處理中')">→ 處理中</button>
+    <button class="q-btn q-done" onclick="quickUpdate('${r.id}','已完成')">→ 完成</button>
+    <button class="q-btn q-more" onclick="openRecord('${r.id}')">詳情</button>
+  </div>`;
+  if(r.status==='處理中'||r.status==='要素材中'||r.status==='素材已提供'||r.status==='已安排上架時間') return `<div class="quick-actions">
+    <button class="q-btn q-done" onclick="quickUpdate('${r.id}','已完成')">→ 完成</button>
+    <button class="q-btn q-more" onclick="openRecord('${r.id}')">詳情</button>
+  </div>`;
+  return `<div class="quick-actions"><button class="q-btn q-more" onclick="openRecord('${r.id}')">詳情</button></div>`;
+}
+
+async function quickUpdate(id,newStatus){
+  const r=_all.find(x=>x.id===id); if(!r) return;
+  if(_dev){r.status=newStatus;applyFilter();_toast(`✓ 已更新為「${newStatus}」`);return;}
+  try{
+    const res=await _fetch('/admin/update',{method:'POST',body:JSON.stringify({doc_id:id,status:newStatus})});
+    if(!res.ok) throw new Error();
+    r.status=newStatus; applyFilter(); _toast(`✓ 已更新為「${newStatus}」`);
+  }catch(_){_toast('❌ 更新失敗，請重試');}
+}
+
+/* ─── Record Modal ─── */
+// 哪些福利需要後台填上架時間
+const NEEDS_UPLOAD_DATE = new Set([
+  '訂製小鈴噹通知','訂製搜尋框文字','訂製專屬徽章',
+  '蓋板創作者封面','訂製專屬禮物','專屬直播欄位廣告'
+]);
+
+function onStatusChange(){
+  const s = document.getElementById('edit-status').value;
+  document.getElementById('reject-reason-group').style.display = (s==='已拒絕') ? 'block' : 'none';
+}
+
+function openRecord(id){
+  const r = _all.find(x=>x.id===id); if(!r) return;
+  _docId = id;
+  document.getElementById('m-title').innerText       = r.username||r.user_id||'—';
+  document.getElementById('m-benefit-tag').innerText = r.benefit;
+  document.getElementById('d-user').innerText        = r.username||r.user_id||'—';
+  document.getElementById('d-level').innerText       = 'LV.'+(r.level||'—');
+  document.getElementById('d-time').innerText        = (r.submitted_at||'').replace('T',' ').slice(0,19)||'—';
+  document.getElementById('d-status').innerHTML      = `<span class="badge ${SC[r.status]||'b-rcvd'}">${_e(r.status)}</span>`;
+
+  const contentEl = document.getElementById('d-content');
+  contentEl.innerText  = r.content||'（無）';
+  contentEl.className  = r.content ? 'field-value' : 'field-value muted';
+
+  // 拒絕原因顯示
+  const rejectDisplay = document.getElementById('d-reject-display');
+  const rejectText    = document.getElementById('d-reject-reason-text');
+  if(r.status==='已拒絕' && r.reject_reason){
+    rejectDisplay.style.display = 'block';
+    rejectText.innerText = r.reject_reason;
+  } else {
+    rejectDisplay.style.display = 'none';
+  }
+
+  // 詳細欄位（贈與帳號保留換行）
+  const FIELDS = [
+    ['swagger_id','主播帳號'],['date','上架日期'],['badge_name','徽章名稱'],['badge_elements','徽章元素'],
+    ['img_url','示意圖'],['target_ids','贈與帳號'],['gift_name','禮物名稱'],['gift_text','禮物文字'],
+    ['diamonds','鑽石數'],['message','小鈴噹文字'],['copy_text','封面文案'],['ad_copy','廣告文案'],
+    ['is_branded','冠名'],['need_photo','需要主播照片'],['lunch_1','午餐優先日1'],['lunch_2','午餐優先日2'],['lunch_3','午餐優先日3'],
+  ];
+  const extra = FIELDS.filter(([k])=>r[k]&&r[k]!==''&&r[k]!=='否');
+  document.getElementById('d-extra').innerHTML = extra.length
+    ? '<div class="field-grid" style="margin-bottom:13px;">'
+      + extra.map(([k,l])=>{
+          // 贈與帳號保留換行
+          if(k==='target_ids'){
+            return `<div class="field-group full"><span class="field-label">${l}</span><div class="field-value" style="white-space:pre-wrap;">${_e(r[k])}</div></div>`;
+          }
+          return `<div class="field-group"><span class="field-label">${l}</span><div class="field-value">${_e(r[k])}</div></div>`;
+        }).join('')
+      + '</div><hr class="divider">'
+    : '';
+
+  // 上架時間欄位（後台可編輯）
+  const needsDate = NEEDS_UPLOAD_DATE.has(r.benefit);
+  document.getElementById('edit-date-group').style.display = needsDate ? 'block' : 'none';
+  document.getElementById('edit-date').value = r.date||'';
+
+  // 女神聚會：主播出席狀態
+  const isParty = r.benefit === '女神聚會';
+  document.getElementById('edit-party-group').style.display = isParty ? 'block' : 'none';
+  if(isParty){
+    const confirmed = r.host_confirmed;
+    document.getElementById('edit-host-confirmed').value =
+      confirmed === true || confirmed === 'true' || confirmed === 'TRUE' || confirmed === '是'
+        ? 'true'
+        : confirmed === false || confirmed === 'false' || confirmed === 'FALSE' || confirmed === '否'
+          ? 'false' : '';
+  }
+
+  document.getElementById('edit-status').value        = r.status||'已收到';
+  document.getElementById('edit-note').value          = r.admin_note||'';
+  document.getElementById('edit-reject-reason').value = r.reject_reason||'';
+  onStatusChange();
+  document.getElementById('modal-overlay').classList.add('open');
+  requestAnimationFrame(()=>document.querySelector('.modal-close')?.focus());
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  _docId = null;
+}
+
+async function saveUpdate(){
+  if(!_docId) return;
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.innerText = '儲存中...';
+
+  const r         = _all.find(x=>x.id===_docId);
+  const newStatus = document.getElementById('edit-status').value;
+  const rejectReason = newStatus==='已拒絕' ? document.getElementById('edit-reject-reason').value : '';
+
+  const body = {
+    doc_id:       _docId,
+    status:       newStatus,
+    admin_note:   document.getElementById('edit-note').value,
+    reject_reason:rejectReason
+  };
+
+  // 上架時間
+  if(r && NEEDS_UPLOAD_DATE.has(r.benefit)){
+    body.date = document.getElementById('edit-date').value.trim();
+  }
+
+  // 女神聚會主播出席
+  if(r && r.benefit === '女神聚會'){
+    const hcVal = document.getElementById('edit-host-confirmed').value;
+    body.host_confirmed = hcVal === 'true' ? true : hcVal === 'false' ? false : null;
+  }
+
+  if(_dev){
+    if(r){
+      r.status = body.status; r.admin_note = body.admin_note; r.reject_reason = rejectReason;
+      if(body.date !== undefined) r.date = body.date;
+      if(body.host_confirmed !== undefined) r.host_confirmed = body.host_confirmed;
     }
-    function doGuaranteed(ref, drawFn, onWin, onMiss) {
-      let win;
-      if(ref.v>=6){win=50;ref.v=0;}
-      else{win=drawFn();win===0?ref.v++:(ref.v=0);}
-      win>0?onWin(win):onMiss();
+    closeModal(); applyFilter(); _toast('✓ 已儲存（Dev Mode）');
+    btn.disabled=false; btn.innerText='儲存變更'; return;
+  }
+  try{
+    const res = await _fetch('/admin/update',{method:'POST',body:JSON.stringify(body)});
+    if(!res.ok){
+      let errMsg = '儲存失敗，請重試';
+      try {
+        const errData = await res.json();
+        errMsg = errData.detail || errData.error || errMsg;
+      } catch(_){}
+      _toast(`❌ ${res.status}: ${errMsg}`);
+      return;
     }
-
-    const missHints = [
-      '🥺 這次沒中，明天繼續來抽！',
-      '😮‍💨 差一點點，手氣快來了！',
-      '🤞 感覺快中了，明天繼續！',
-      '💪 堅持就是勝利，明天再試！',
-    ];
-
-    /* ── FOMO thresholds ── */
-    function updateFOMO(remain) {
-      const pct = remain / TOTAL * 100;
-      const banner = document.getElementById('fomo-banner');
-      const bars   = document.querySelectorAll('.pool-bar-fill');
-      const mains  = document.querySelectorAll('.pool-main');
-      const cards  = document.querySelectorAll('.pool-card');
-
-      if (pct <= 10) {
-        banner.className = 'fomo-banner danger show';
-        banner.textContent = '🚨 總池剩餘不足 10%！鑽石快搶光了，立即升級提領！';
-        bars.forEach(b  => b.className  = 'pool-bar-fill danger');
-        mains.forEach(m => m.className  = 'pool-main danger');
-        cards.forEach(c => c.className  = 'pool-card danger-state');
-      } else if (pct <= 20) {
-        banner.className = 'fomo-banner warn show';
-        banner.textContent = '⚠️ 總池剩餘已不足 20%，搶光了就沒了！';
-        bars.forEach(b  => b.className  = 'pool-bar-fill warn');
-        mains.forEach(m => m.className  = 'pool-main warn');
-        cards.forEach(c => c.className  = 'pool-card warn-state');
-      } else {
-        banner.className = 'fomo-banner';
-        bars.forEach(b  => b.className  = 'pool-bar-fill');
-        mains.forEach(m => m.className  = 'pool-main');
-        cards.forEach(c => c.className  = 'pool-card');
-      }
+    if(r){
+      r.status = body.status; r.admin_note = body.admin_note; r.reject_reason = rejectReason;
+      if(body.date !== undefined) r.date = body.date;
+      if(body.host_confirmed !== undefined) r.host_confirmed = body.host_confirmed;
     }
+    closeModal(); applyFilter(); _toast('✓ 已儲存');
+  }catch(e){ _toast(`❌ 網路錯誤: ${e.message}`); }
+  finally{ btn.disabled=false; btn.innerText='儲存變更'; }
+}
 
-    /* ── Win animation ── */
-    function playWinAnimation(amount) {
-      const overlay = document.getElementById('win-overlay');
-      overlay.innerHTML = '';
-
-      // 數量依獎項大小：50→6顆，100→10，200→16，500→22，1000→30，3000→45，5000→60，10000→80
-      const count =
-        amount >= 10000 ? 80 :
-        amount >= 5000  ? 60 :
-        amount >= 3000  ? 45 :
-        amount >= 1000  ? 30 :
-        amount >= 500   ? 22 :
-        amount >= 200   ? 16 :
-        amount >= 100   ? 10 : 6;
-
-      const emojis = ['💎','💎','✨','💎','⭐','💫','💎','🔥'];
-
-      for (let i = 0; i < count; i++) {
-        const el = document.createElement('span');
-        el.className = 'diamond-particle';
-
-        // 360度均勻噴射，帶隨機偏移
-        const angle   = (i / count) * 360 + (Math.random() - .5) * (360 / count);
-        const rad     = angle * Math.PI / 180;
-        const dist    = 80 + Math.random() * 80; // 初始噴射半徑 px
-        const tx      = Math.cos(rad) * dist;
-        const ty      = Math.sin(rad) * dist;
-        const dur     = .8 + Math.random() * .7;
-        const size    = amount >= 3000 ? 20 + Math.random() * 16 : 16 + Math.random() * 10;
-        const rot     = (Math.random() - .5) * 720 + 'deg';
-
-        el.style.cssText = `
-          --tx: ${tx}px; --ty: ${ty}px;
-          --dur: ${dur}s; --rot: ${rot};
-          font-size: ${size}px;
-          animation-delay: ${i * 0.018}s;
-        `;
-        el.textContent = emojis[i % emojis.length];
-        overlay.appendChild(el);
-      }
-
-      setTimeout(() => { overlay.innerHTML = ''; }, 2500);
+/* ─── Danger Zone ─── */
+function confirmAction(type){
+  const r=_all.find(x=>x.id===_docId); if(!r) return;
+  _confirmAction=type;
+  const cfg={
+    ban:{
+      title:'🚫 違規拒絕',
+      desc:`確定要將「${r.username||r.user_id}」的此筆預約標記為違規拒絕嗎？此操作將永久封鎖該用戶對本福利的重新預約資格，並記錄至 Firestore。`,
+      btnColor:'var(--error)',btnText:'確認違規拒絕'
+    },
+    delete:{
+      title:'🗑 刪除紀錄',
+      desc:`確定要刪除「${r.username||r.user_id}」的此筆福利紀錄嗎？刪除後該用戶可重新預約此福利。此操作不可還原。`,
+      btnColor:'var(--warning)',btnText:'確認刪除'
     }
+  }[type];
+  document.getElementById('confirm-title').innerText=cfg.title;
+  document.getElementById('confirm-desc').innerText=cfg.desc;
+  const okBtn=document.getElementById('confirm-ok-btn');
+  okBtn.innerText=cfg.btnText;
+  okBtn.style.background=cfg.btnColor;
+  okBtn.style.color='#fff';
+  document.getElementById('confirm-dialog').classList.add('open');
+}
 
-    /* ── UI update ── */
-    function updateAll() {
-      const remain = Math.max(0, TOTAL-spent);
-      const pct = (remain/TOTAL*100).toFixed(1)+'%';
-      const spentPct = (spent / TOTAL * 100).toFixed(1) + '%';
-      ['lv0','lv1'].forEach(id=>{
-        document.getElementById(`pool-remain-${id}`).textContent = fmt(remain);
-        document.getElementById(`pool-spent-${id}`).textContent  = fmt(spent);
-        document.getElementById(`pool-bar-${id}`).style.width    = spentPct;
+function closeConfirm(){
+  document.getElementById('confirm-dialog').classList.remove('open');
+  _confirmAction=null;
+}
+
+async function executeConfirm(){
+  if(!_confirmAction||!_docId) return;
+  const r=_all.find(x=>x.id===_docId);
+  const type=_confirmAction;
+  closeConfirm();
+
+  if(_dev){
+    if(type==='delete'){
+      _all=_all.filter(x=>x.id!==_docId);
+      closeModal(); applyFilter(); _toast('✓ 已刪除紀錄（Dev Mode）');
+    } else {
+      if(r){r.status='已拒絕';r.is_banned=true;r.reject_reason='違規行為確認，不得再次申請。';}
+      closeModal(); applyFilter(); _toast('✓ 已標記違規拒絕（Dev Mode）');
+    }
+    _docId=null; return;
+  }
+
+  try{
+    if(type==='delete'){
+      // 呼叫後端 /admin/delete，後端負責從 Firestore 刪除該 document
+      const res=await _fetch('/admin/delete',{
+        method:'POST',
+        body:JSON.stringify({doc_id:_docId})
       });
-      document.getElementById('chest-val').textContent   = fmt(chest);
-      document.getElementById('earned-val').textContent  = fmt(earned);
-      const upg = document.getElementById('chest-upgrade');
-      upg.classList.toggle('show', chest>0);
-      updateFOMO(remain);
+      if(!res.ok) throw new Error('delete failed: '+res.status);
+      _all=_all.filter(x=>x.id!==_docId);
+      closeModal(); applyFilter(); _toast('✓ 已從 Firestore 刪除紀錄');
+    } else {
+      const payload={doc_id:_docId,status:'已拒絕',is_banned:true,reject_reason:'違規行為確認，不得再次申請。'};
+      const res=await _fetch('/admin/update',{method:'POST',body:JSON.stringify(payload)});
+      if(!res.ok) throw new Error();
+      if(r){r.status='已拒絕';r.is_banned=true;r.reject_reason=payload.reject_reason;}
+      closeModal(); applyFilter(); _toast('✓ 已標記違規拒絕');
     }
+  }catch(_){_toast('❌ 操作失敗，請重試');}
+  _docId=null;
+}
 
-    function showResult(id, text, cls) {
-      const el = document.getElementById(id);
-      el.textContent=text; el.className='result '+cls;
-      void el.offsetWidth; el.classList.add('animate');
-      el.addEventListener('animationend',()=>el.classList.remove('animate'),{once:true});
-    }
+/* ─── Add Modal ─── */
+const ADD_SECTIONS = ['swagger-date','bell','badge','cover','gift','ad','lunch'];
 
-    /* ── Draw handlers ── */
-    document.getElementById('drawLv0').addEventListener('click', ()=>{
-      doGuaranteed(lv0Ref, drawLv0,
-        win=>{
-          chest+=win; updateAll();
-          playWinAnimation(win);
-          const msg = win>=3000
-            ? `🎉 恭喜中大獎！${fmt(win)} 鑽已存入寶箱，升級 Lv.1 即可立刻提領！`
-            : `🎉 恭喜中獎！${fmt(win)} 鑽已存入寶箱，升級 Lv.1 即可立刻提領！`;
-          showResult('result-lv0', msg, 'win-gold');
-        },
-        ()=>{
-          updateAll();
-          showResult('result-lv0', missHints[Math.min(lv0Ref.v-1, missHints.length-1)], 'miss');
-        }
-      );
-    });
+function onAddBenefitChange(){
+  const b = document.getElementById('add-benefit').value;
+  document.getElementById('add-base-fields').style.display = b ? 'block' : 'none';
+  ADD_SECTIONS.forEach(s => document.getElementById('add-sect-'+s).style.display = 'none');
+  const MAP = {
+    '大神贊助':        'swagger-date',
+    '女神聚會':        'swagger-date',
+    '訂製搜尋框文字':  'swagger-date',
+    '訂製小鈴噹通知':  'bell',
+    '訂製專屬徽章':    'badge',
+    '蓋板創作者封面':  'cover',
+    '訂製專屬禮物':    'gift',
+    '專屬直播欄位廣告':'ad',
+    'CEO午餐':         'lunch'
+  };
+  const sect = MAP[b];
+  if(sect) document.getElementById('add-sect-'+sect).style.display = 'block';
+}
 
-    document.getElementById('drawLv1').addEventListener('click', ()=>{
-      doGuaranteed(lv1Ref, ()=>weightedDraw(prizesLv1,LV1_MISS),
-        win=>{
-          spent+=win; earned+=win; updateAll();
-          playWinAnimation(win);
-          showResult('result-lv1', `💰 恭喜！${fmt(win)} 鑽已即時入帳 🎊`, 'win-gold');
-        },
-        ()=>{
-          updateAll();
-          showResult('result-lv1', missHints[Math.min(lv1Ref.v-1, missHints.length-1)], 'miss');
-        }
-      );
-    });
+function toggleAddGiftSwagger(){
+  const checked = document.getElementById('add-gift-photo').checked;
+  document.getElementById('add-gift-swagger-wrap').style.display = checked ? 'block' : 'none';
+}
 
-    /* ── Tab nav ── */
-    document.querySelectorAll('.nav-tab').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
-        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(`page-${btn.dataset.page}`).classList.add('active');
-        window.scrollTo({top:0,behavior:'smooth'});
-        renderPrizeModal(btn.dataset.page === 'lv0');
-      });
-    });
+function openAddModal(){
+  document.getElementById('modal-add-overlay').classList.add('open');
+}
 
-    /* ── Prize modal ── */
-    const lv0Map = Object.fromEntries(prizesLv0.map(p=>[p.d, p.odds]));
-    const lv1Map = Object.fromEntries(prizesLv1.map(p=>[p.d, p.odds]));
+function closeAddModal(){
+  document.getElementById('modal-add-overlay').classList.remove('open');
+  // reset all fields
+  document.getElementById('add-benefit').value = '';
+  document.getElementById('add-base-fields').style.display = 'none';
+  ADD_SECTIONS.forEach(s => document.getElementById('add-sect-'+s).style.display = 'none');
+  const ids = [
+    'add-user-id','add-username','add-level',
+    'add-swagger','add-date',
+    'add-swagger-bell','add-date-bell','add-bell-msg',
+    'add-badge-name','add-badge-elem','add-badge-url','add-badge-targets',
+    'add-swagger-cover','add-cover-copy',
+    'add-gift-name','add-gift-txt','add-gift-dia','add-swagger-gift',
+    'add-swagger-ad','add-ad-copy',
+    'add-lunch-1','add-lunch-2','add-lunch-3',
+    'add-content'
+  ];
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['add-bell-brand','add-cover-brand','add-gift-brand','add-gift-photo','add-ad-brand'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.checked=false;
+  });
+  document.getElementById('add-gift-swagger-wrap').style.display='none';
+  document.getElementById('add-status').value='已收到';
+}
 
-    const rarityLabel = odds => {
-      if (odds <= 0.05) return '極罕見';
-      if (odds <= 0.3)  return '非常稀有';
-      if (odds <= 2.5)  return '稀有';
-      if (odds <= 3)    return '不常見';
-      if (odds <= 8)    return '普通';
-      if (odds <= 10)   return '常見';
-      return '很常見';
-    };
+function _getAddPayload(){
+  const b = document.getElementById('add-benefit').value;
+  const base = {
+    benefit:      b,
+    user_id:      document.getElementById('add-user-id').value.trim(),
+    username:     document.getElementById('add-username').value.trim(),
+    level:        parseInt(document.getElementById('add-level').value)||0,
+    status:       document.getElementById('add-status').value,
+    content:      document.getElementById('add-content').value.trim(),
+    admin_note:   '【後台手動新增】',
+    reject_reason:'',
+    submitted_at: new Date().toISOString(),
+    is_manual:    true
+  };
+  // 依福利補欄位
+  if(b==='大神贊助'||b==='女神聚會'||b==='訂製搜尋框文字'){
+    base.swagger_id = document.getElementById('add-swagger').value.trim();
+    base.date       = document.getElementById('add-date').value.trim();
+  } else if(b==='訂製小鈴噹通知'){
+    base.swagger_id = document.getElementById('add-swagger-bell').value.trim();
+    base.date       = document.getElementById('add-date-bell').value.trim();
+    base.message    = document.getElementById('add-bell-msg').value.trim();
+    base.is_branded = document.getElementById('add-bell-brand').checked ? '是' : '否';
+  } else if(b==='訂製專屬徽章'){
+    base.badge_name     = document.getElementById('add-badge-name').value.trim();
+    base.badge_elements = document.getElementById('add-badge-elem').value.trim();
+    base.img_url        = document.getElementById('add-badge-url').value.trim();
+    base.target_ids     = document.getElementById('add-badge-targets').value.trim();
+  } else if(b==='蓋板創作者封面'){
+    base.swagger_id = document.getElementById('add-swagger-cover').value.trim();
+    base.copy_text  = document.getElementById('add-cover-copy').value.trim();
+    base.is_branded = document.getElementById('add-cover-brand').checked ? '是' : '否';
+  } else if(b==='訂製專屬禮物'){
+    base.gift_name  = document.getElementById('add-gift-name').value.trim();
+    base.gift_text  = document.getElementById('add-gift-txt').value.trim();
+    base.diamonds   = document.getElementById('add-gift-dia').value.trim();
+    base.is_branded = document.getElementById('add-gift-brand').checked ? '是' : '否';
+    base.need_photo = document.getElementById('add-gift-photo').checked;
+    if(base.need_photo) base.swagger_id = document.getElementById('add-swagger-gift').value.trim();
+  } else if(b==='專屬直播欄位廣告'){
+    base.swagger_id = document.getElementById('add-swagger-ad').value.trim();
+    base.ad_copy    = document.getElementById('add-ad-copy').value.trim();
+    base.is_branded = document.getElementById('add-ad-brand').checked ? '是' : '否';
+  } else if(b==='CEO午餐'){
+    base.lunch_1 = document.getElementById('add-lunch-1').value.trim();
+    base.lunch_2 = document.getElementById('add-lunch-2').value.trim();
+    base.lunch_3 = document.getElementById('add-lunch-3').value.trim();
+  }
+  return base;
+}
 
-    function renderPrizeModal(isLv0) {
-      // 永遠顯示較低的 Lv.1+ 機率（對外統一呈現）
-      const prizes = prizesLv1;
-      document.getElementById('prize-list-modal').innerHTML =
-        prizes.map((p, i) => `
-          <div class="prize-row ${i < 2 ? 'top' : ''}">
-            <span class="prize-em">${p.em}</span>
-            <span class="prize-d">${fmt(p.d)} 鑽</span>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-              <span class="prize-badge">${rarityLabel(p.odds)}</span>
-              <span style="font-size:11px;color:var(--text-3)">${p.odds}%</span>
-            </div>
-          </div>`).join('') +
-        `<div class="prize-row"><span class="prize-em">🙏</span><span class="prize-miss-row">銘謝惠顧</span></div>`;
-    }
+function _validateAdd(payload){
+  if(!payload.benefit)  return '請選擇福利項目';
+  if(!payload.user_id)  return '請填寫用戶 ID';
+  const b = payload.benefit;
+  if(['大神贊助','女神聚會','訂製搜尋框文字','訂製小鈴噹通知','蓋板創作者封面','專屬直播欄位廣告'].includes(b) && !payload.swagger_id)
+    return '請填寫主播帳號';
+  if(b==='訂製專屬徽章' && !payload.badge_name) return '請填寫徽章名稱';
+  if(b==='訂製專屬禮物' && !payload.gift_name)  return '請填寫禮物名稱';
+  return null;
+}
 
-    renderPrizeModal(true); // 預設顯示 Lv.0
+async function submitAdd(){
+  const payload = _getAddPayload();
+  const err = _validateAdd(payload);
+  if(err){ _toast('⚠️ '+err); return; }
 
-    function openPrizeModal()  { document.getElementById('prizeModal').classList.add('open'); }
-    function closePrizeModal() { document.getElementById('prizeModal').classList.remove('open'); }
+  const btn = document.getElementById('btn-add-submit');
+  btn.disabled=true; btn.innerText='建立中...';
 
-    /* ── Dev simulator ── */
-    function simPool(remain) {
-      if (isNaN(remain) || remain < 0) return;
-      remain = Math.min(remain, TOTAL);
-      spent = TOTAL - remain;
-      updateAll();
-    }
+  if(_dev){
+    payload.id = 'manual_'+Date.now();
+    _all.unshift(payload);
+    closeAddModal(); applyFilter(); _toast('✓ 已新增紀錄（Dev Mode）');
+    btn.disabled=false; btn.innerText='＋ 建立紀錄'; return;
+  }
+  try{
+    const res = await _fetch('/admin/create',{method:'POST',body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    payload.id = data.id||'manual_'+Date.now();
+    _all.unshift(payload);
+    closeAddModal(); applyFilter(); _toast('✓ 已新增紀錄並寫入 Firestore');
+  }catch(_){ _toast('❌ 新增失敗，請重試'); }
+  finally{ btn.disabled=false; btn.innerText='＋ 建立紀錄'; }
+}
 
-    /* ── Countdown ── */
-    function tick() {
-      const now=new Date(), end=new Date(now);
-      end.setUTCDate(now.getUTCDate()+((7-now.getUTCDay())%7||7));
-      end.setUTCHours(0,0,0,0);
-      const s=Math.max(0,Math.floor((end-now)/1000));
-      document.getElementById('countdown-lv0').textContent =
-        `${Math.floor(s/86400)}天 ${Math.floor((s%86400)/3600)}小時 ${s%60}秒`;
-    }
+/* ─── Helpers ─── */
+function _e(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-    /* ── Marquee ── */
-    const feeds=['uid7821 升級 Lv.1 提領 3,000 鑽 🎉','uid9902 抽中 1,000 鑽 💰','uid4450 實抽中 500 鑽 ✨','uid6619 升級提領 10,000 鑽 👑','uid3317 保底中 50 鑽','uid2209 抽中 5,000 鑽大獎 💫'];
-    const txt=(feeds.join('  ✦  ')+'  ✦  ').repeat(2);
-    document.getElementById('marqueeEl0').textContent=txt;
-    document.getElementById('marqueeEl1').textContent=txt;
-
-    updateAll(); tick(); setInterval(tick,1000);
-  </script>
-
-  <footer style="text-align:center;padding:20px 16px 32px;font-size:11px;color:var(--text-3);line-height:1.7;max-width:720px;margin:0 auto;">
-    本活動最終解釋權歸官方所有。官方保留隨時修改、暫停或終止活動之權利，恕不另行通知。鑽石獎勵以實際入帳為準，活動期間如遇系統異常，官方有權進行調整或回收。
-  </footer>
+let _toastTimer;
+function _toast(msg){
+  const el=document.getElementById('toast');
+  el.innerText=msg; el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+}
+</script>
 </body>
 </html>
