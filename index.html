@@ -15,9 +15,9 @@
   --surface-4:   #282828;
   --outline:     #3a3a3a;
   --outline-v:   rgba(58,58,58,0.6);
-  --on-1:        #F4F4F4;  /* 主文字：更亮 */
-  --on-2:        #C8C8C8;  /* 次要文字：從 #A8 → #C8 */
-  --on-3:        #888888;  /* 輔助文字：從 #50 → #88，眼睛不痛 */
+  --on-1:        #FFFFFF;  /* 主文字：純白 */
+  --on-2:        #E0E0E0;  /* 次要文字 */
+  --on-3:        #B0B0B0;  /* 輔助文字 */
   --error:       #E03030;
   --warning:     #F0A020;
   --success:     #00D2BE;
@@ -95,8 +95,6 @@ body{
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
 .topbar-title{font-size:14px;font-weight:700;white-space:nowrap;}
-.topbar-divider{width:1px;height:12px;background:var(--outline);flex-shrink:0;}
-.topbar-subtitle{font-size:12px;color:var(--on-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* 重整按鈕貼在標題右邊 */
 .btn-refresh{
@@ -142,21 +140,23 @@ body{
 }
 .tabs-scroll-btn {
   flex-shrink: 0;
-  width: 32px;
+  width: 36px;
   height: var(--tabs-h);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--surface-2);
+  background: var(--surface-3);
   border: none;
-  color: var(--on-2);
-  font-size: 16px;
+  color: var(--on-1);
+  font-size: 20px;
+  font-weight: 700;
   cursor: pointer;
   transition: color var(--tr), background var(--tr);
   z-index: 2;
+  line-height: 1;
 }
-.tabs-scroll-btn:hover { color: var(--on-1); background: var(--surface-3); }
-.tabs-scroll-btn.hidden { opacity: 0; pointer-events: none; }
+.tabs-scroll-btn:hover { color: var(--primary); background: var(--surface-4); }
+.tabs-scroll-btn.hidden { opacity: 0.2; pointer-events: none; }
 .tabs-scroll-btn.left { border-right: 1px solid var(--outline-v); }
 .tabs-scroll-btn.right { border-left: 1px solid var(--outline-v); }
 .benefit-tabs {
@@ -530,8 +530,6 @@ td.col-note{min-width:150px;max-width:200px;overflow:hidden;text-overflow:ellips
     <div class="topbar-left">
       <div class="topbar-logo">V</div>
       <div class="topbar-title">VIP 預約後台</div>
-      <div class="topbar-divider"></div>
-      <div class="topbar-subtitle">VIP 預約管理</div>
       <button class="btn-refresh" onclick="loadData()" title="重新整理資料">↺ 重整</button>
     </div>
     <div class="topbar-right">
@@ -1030,19 +1028,27 @@ async function loadData(){
 
 /* ─── Tab Arrow ─── */
 function scrollTabs(dir){
-  const tabs = document.getElementById('benefit-tabs');
-  if (!tabs) return;
-  tabs.scrollBy({ left: dir * 200, behavior: 'smooth' });
+  const tabs    = document.getElementById('benefit-tabs');
+  const buttons = [...tabs.querySelectorAll('.tab-btn')];
+  const active  = tabs.querySelector('.tab-btn.active');
+  const idx     = buttons.indexOf(active);
+  const next    = buttons[idx + dir];
+  if (next) {
+    next.click();
+    next.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+  setTimeout(updateTabsArrow, 150);
 }
 function updateTabsArrow(){
   const tabs  = document.getElementById('benefit-tabs');
   const left  = document.getElementById('tabs-arrow-left');
   const right = document.getElementById('tabs-arrow-right');
   if (!tabs) return;
-  const atStart = tabs.scrollLeft <= 2;
-  const atEnd   = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 2;
-  if (left)  left.classList.toggle('hidden', atStart);
-  if (right) right.classList.toggle('hidden', atEnd);
+  const buttons = [...tabs.querySelectorAll('.tab-btn')];
+  const active  = tabs.querySelector('.tab-btn.active');
+  const idx     = buttons.indexOf(active);
+  if (left)  left.classList.toggle('hidden', idx <= 0);
+  if (right) right.classList.toggle('hidden', idx >= buttons.length - 1);
 }
 
 /* ─── Tab ─── */
